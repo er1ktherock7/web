@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Virtual Piano</title>
+	<style>
+		/* Define styles for the piano keys */
+		.key {
+			display: inline-block;
+			border: 1px solid #000;
+			width: 40px;
+			height: 150px;
+			margin: 5px;
+			background-color: white;
+			border-radius: 5px;
+			box-shadow: 2px 2px 5px #888888;
+		}
+
+		.key.black {
+			width: 25px;
+			height: 100px;
+			background-color: black;
+			position: relative;
+			top: -50px;
+			z-index: 1;
+			border-radius: 0px 0px 5px 5px;
+			box-shadow: 2px 2px 5px #888888;
+		}
+
+		.key.play {
+			box-shadow: inset 2px 2px 5px #888888;
+			background-color: #e6e6e6;
+		}
+
+		/* Define styles for the piano container */
+		.container {
+			text-align: center;
+			margin-top: 50px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<!-- Create the piano keys -->
+		<div class="key" data-note="C"></div>
+		<div class="key black" data-note="C#"></div>
+		<div class="key" data-note="D"></div>
+		<div class="key black" data-note="D#"></div>
+		<div class="key" data-note="E"></div>
+		<div class="key" data-note="F"></div>
+		<div class="key black" data-note="F#"></div>
+		<div class="key" data-note="G"></div>
+		<div class="key black" data-note="G#"></div>
+		<div class="key" data-note="A"></div>
+		<div class="key black" data-note="A#"></div>
+		<div class="key" data-note="B"></div>
+	</div>
+
+	<script>
+		// Define the function that plays a note
+		function playNote(note) {
+			var audio = new Audio("path/to/" + note + ".mp3"); // Replace with actual file path
+			audio.play();
+
+			// Add the 'play' class to the key to highlight it
+			var key = document.querySelector("[data-note='" + note + "']");
+			key.classList.add("play");
+
+			// Remove the 'play' class after a short delay
+			setTimeout(function() {
+				key.classList.remove("play");
+			}, 100);
+		}
+
+		// Add event listeners to the keys to play the corresponding notes
+		document.querySelectorAll(".key").forEach(function(key) {
+			key.addEventListener("click", function() {
+				var note = this.dataset.note;
+				playNote(note);
+			});
+		});
+	</script>
+</body>
+</html>

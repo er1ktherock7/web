@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="en" class="min-h-full antialiased"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#002b36">
+
+    <title>
+      Online Chromatic Tuner: Tune Any Instrument Using Your Microphone
+    </title>
+
+    <meta name="description" content="This online chromatic tuner allows you to tune to any of the 12 notes of the chromatic scale. Just use your microphone to tune any instrument.">
+    <meta name="robots" content="index,follow">
+
+    <link rel="stylesheet" href="css/secondary.min.css" media="print" onload="this.media='all'">
+      
+    <script src="js/main.min.js" defer></script>
+     
+<meta itemprop="name" content="Online Chromatic Tuner: Tune Any Instrument Using Your Microphone | muted.io">
+<meta itemprop="description" content="This online chromatic tuner allows you to tune to any of the 12 notes of the chromatic scale. Just use your microphone to tune any instrument.">
+
+<meta name="og:title" content="Online Chromatic Tuner: Tune Any Instrument Using Your Microphone | muted.io">
+<meta name="og:description" content="This online chromatic tuner allows you to tune to any of the 12 notes of the chromatic scale. Just use your microphone to tune any instrument.">
+<meta name="og:image" content="https://muted.io/images/covers/chromatic-tuner.jpg">
+<meta name="og:url" content="https://muted.io/chromatic-tuner/">
+<meta name="og:site_name" content="muted.io">
+<meta name="og:type" content="website">
+
+
+    <link rel="icon" href="favicon2.ico" sizes="any">
+    <link rel="icon" href="fonts/favicon2.svg" type="image/svg+xml">
+
+    
+    <link rel="canonical" href="https://muted.io/chromatic-tuner/">
+    <link rel="manifest" href="/manifest.json">
+
+        
+    <script src="js/alpinejs%403.10.3.min.js" defer></script>
+      
+    <script src="js/tonal.min.js"></script>
+               
+  </head>
+
+    </div>
+    
+<div>
+  <style>
+    .start-button {
+      animation: pulse 1s linear infinite;
+    }
+    .in-tune {
+      color: #82ff69;
+    }
+    .out-of-tune {
+      color: #ff6e04;
+    }
+    @keyframes pulse {
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    .meter-needle {
+      transition: transform 0.1s linear;
+    }
+    .tool-wrapper svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .results {
+      font-family: var(--font-family);
+      color: var(--accent);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    @media (min-width: 600px) {
+      .results {
+        transform: translate(-50%, -50%) scale(1.5);
+      }
+    }
+    .results .note {
+      font-size: 3rem;
+      color: var(--text);
+    }
+    .active-note {
+      fill: var(--bg-light2);
+      transition: fill 0.25s;
+    }
+    .results .note .exact,
+    .active-note.exact,
+    span.in-tune {
+      color: #82ff69;
+      fill: hsl(110, 100%, 25%);
+    }
+    .light-theme .results .note .exact,
+    .light-theme .active-note.exact {
+      fill: hsl(110, 100%, 75%);
+    }
+    .results .note .out-of-tune,
+    .active-note.out-of-tune,
+    span.out-of-tune {
+      color: #ff6e04;
+      fill: hsl(25.3, 100%, 25%);
+    }
+    .light-theme .results .note .out-of-tune,
+    .light-theme .active-note.out-of-tune {
+      fill: hsl(25.3, 100%, 75%);
+    }
+    .wheel-wrapper {
+      fill: var(--bg-light);
+    }
+    .light-theme .wheel-wrapper {
+      fill: var(--bg-dark-alt);
+    }
+  </style>
+</div>
+
+
+<div class="tool max-w-6xl mx-auto mt-4 relative text-center" x-data>
+  <div class="controls mb-12">
+    <button x-show="!$store.mmm.tunerStarted" @click="$store.mmm.tunerStarted = startTuner();" id="start-tuner" class="btn accent text-2xl" :class="$store.mmm.tunerStarted ? 'stop-button' : 'start-button'">
+      <!-- icon by feather icons: https://feathericons.com/, MIT-licensed -->
+      <!-- prettier-ignore -->
+      <svg class="inline" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      Start Tuner
+    </button>
+    <button x-show="$store.mmm.tunerStarted" @click="$store.mmm.tunerStarted = stopTuner(); $store.mmm.pitch = 0;" id="stop-tuner" class="btn">
+      <!-- icon by feather icons: https://feathericons.com/, MIT-licensed -->
+      <!-- prettier-ignore -->
+      <svg class="inline" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      Stop Tuner
+    </button>
+  </div>
+
+  <div x-data class="tool-wrapper max-w-3xl mx-auto relative">
+    <div class="results">
+      <div x-show="$store.mmm.pitch" class="note">
+        <span x-html="$store.mmm.getNote()" :class="($store.mmm.getCents() >= -5 && $store.mmm.getCents() <= 5) ? 'exact' : ($store.mmm.getCents() <= -20 || $store.mmm.getCents() >= 20) ? 'out-of-tune' : ''"></span>
+      </div>
+      <div x-show="$store.mmm.pitch" class="cents">
+        <span x-text="`${$store.mmm.getCents() > 0 ? '+' : ''}${$store.mmm.getCents()} cents`"></span>
+      </div>
+      <div class="pitch accent2">
+        <span x-show="$store.mmm.pitch" x-text="`${$store.mmm.pitch}hz`"></span>
+        <span x-show="!$store.mmm.pitch">---</span>
+      </div>
+    </div>
+  
+    </svg>
+  </div>
+</div>
+
+<hr class="alt">
+
+<script type="module">
+  // import { PitchDetector } from 'https://esm.sh/pitchy@4';
+  // pitchy, MIT-licensed: https://github.com/ianprime0509/pitchy/blob/main/LICENSE
+  import { PitchDetector } from '/js/pitchy.min.js';
+
+  function startTuner() {
+    audioContext.resume();
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      window.stream = stream;
+      audioContext.createMediaStreamSource(stream).connect(analyserNode);
+      const detector = PitchDetector.forFloat32Array(analyserNode.fftSize);
+      const input = new Float32Array(detector.inputLength);
+      updatePitch(analyserNode, detector, input, audioContext.sampleRate);
+    });
+
+    return true;
+  }
+  window.startTuner = startTuner;
+</script>
+
+<script>
+  const audioContext = new window.AudioContext();
+  const analyserNode = audioContext.createAnalyser();
+
+  document.addEventListener('alpine:init', () => {
+    Alpine.store('mmm', {
+      tunerStarted: false,
+      instrument: 'acoustic-guitar',
+      pitch: 0,
+      getNoteSimple() {
+        return Tonal.Note.fromFreq(this.pitch).slice(0, -1);
+      },
+      getNote() {
+        const base = Tonal.Note.fromFreq(this.pitch);
+        const sharp = Tonal.Note.fromFreqSharps(this.pitch);
+
+        if (base === sharp) {
+          return base.replace('b', '<sub>♭</sub>').replace('#', '<sup>♯</sup>');
+        } else {
+          return `${sharp.slice(0, -1)}/${base}`
+            .replaceAll('b', '<sub>♭</sub>')
+            .replaceAll('#', '<sup>♯</sup>');
+        }
+      },
+      getCents() {
+        const exactFreq = Tonal.Note.freq(Tonal.Note.fromFreq(this.pitch));
+
+        const centDifference = (
+          1200 * Math.log2(this.pitch / exactFreq)
+        ).toFixed(2);
+
+        return centDifference;
+      },
+      inTune: false,
+      inTuneExact: false,
+    });
+  });
+
+  let currentTuner;
+  function updatePitch(analyserNode, detector, input, sampleRate) {
+    analyserNode.getFloatTimeDomainData(input);
+    const [pitch, clarity] = detector.findPitch(input, sampleRate);
+
+    let meetThreshold = pitch >= 20 && pitch <= 10000 && clarity >= 0.9;
+    if (meetThreshold) {
+      Alpine.store('mmm').pitch = Math.round(pitch * 10) / 10;
+    }
+
+    currentTuner = setTimeout(
+      () => updatePitch(analyserNode, detector, input, sampleRate),
+      100
+    );
+  }
+
+  function stopTuner() {
+    if (currentTuner) {
+      clearTimeout(currentTuner);
+    }
+    if (window.stream) {
+      const tracks = window.stream.getTracks();
+
+      tracks.forEach(function (track) {
+        track.stop();
+      });
+    }
+    Alpine.store('mmm').pitch = 0;
+    Alpine.store('mmm').inTune = false;
+    Alpine.store('mmm').inTuneExact = false;
+
+    return false;
+  }
+</script>
+
+</body></html>

@@ -1,0 +1,281 @@
+
+.lesson-main-bg{
+    background-color: var(--background-gray);
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    margin-top: 50px;
+    margin-bottom: 100px;
+}
+.lesson-main-bg::before{
+    clip-path: polygon(100% 50%, 0% 100%, 100% 100%);
+    content: '';
+    width: 500px;
+    height: 300px;
+    background-color: var(--background-gray);
+    position: absolute;
+    top: -300px;
+    right: 0;
+    z-index: -1;
+}
+.lesson-main-bg::after{
+    clip-path: polygon(100% 0, 0 100%, 0 0);
+    content: '';
+    width: 100%;
+    height: 100px;
+    background-color: var(--background-gray);
+    position: absolute;
+    bottom: -100px;
+    left: 0;
+    z-index: -1;
+}
+.grid-lessons{
+    /* background-color: rebeccapurple; */
+    width: 100%;
+    height: 100%;
+    position: relative;
+    gap: 20px;
+    overflow: hidden;
+    padding: 20px;
+    display: grid;
+}
+.lessons{
+    background-color:var(--background-gray);
+    overflow: scroll;
+    width: 100%;
+    /* display: flex; */
+    position: relative;
+    transition: height 1s;
+}
+.lessons::-webkit-scrollbar{
+    display: none; /* Remove o scrollbar do Webkit */
+}
+.lessons-card{
+    /* background-color: rgb(79, 79, 212); */
+    background-color: var(--background-gray);
+    width: 70%;
+    margin-right: 100px;
+    height: 250px;
+    display: flex;
+    gap: 15px;
+    z-index: 2;
+}
+.lessons-card::-webkit-scrollbar {
+  display: none; /* Remove o scrollbar do Webkit */
+}
+.math-card,
+.code-card,
+.music-card,
+.other-card{
+    background: rgb(34,41,49);
+    background: linear-gradient(90deg, rgba(34,41,49,1) 0%, var(--dark-maincolor-detail) 100%);
+    height: auto;
+    width: 100%;
+    display: flex;
+    /* display: grid; */
+    grid-template-columns: auto  1fr auto;
+    grid-template-rows: auto 1fr;
+    padding: 20px;
+    gap: 5px 20px;
+    align-items: flex-end;
+    position: relative;
+    color: var(--darkmode-black);
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.title-card{
+    display: flex;
+    flex-direction: column;
+}
+.count h2{
+    color: var(--black);
+}
+.count p{
+    margin-top: 5px;
+}
+.math-lesson,
+.code-lesson,
+.music-lesson,
+.other-lesson
+{
+    width: 100%;
+    height: auto;
+    background-color: var(--darkmode);
+    border-radius: 5px;
+    padding: 20px;
+    color: var(--black);
+}
+.square-math,
+.square-code,
+.square-music,
+.square-other{
+    width: 40px;
+    height: 40px;
+    background-color: var(--darkmode);
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.math-expanded,
+.code-expanded,
+.music-expanded,
+.other-expanded{
+    width: calc(70% - 10px);
+    height: 100%;
+    position: absolute;
+    right: 100%;
+    gap: 10px;
+    transition:  .5s ease-in-out;
+    display: grid;
+    overflow-y: scroll;
+}   
+.math-expanded::-webkit-scrollbar,
+.code-expanded::-webkit-scrollbar,
+.music-expanded::-webkit-scrollbar,
+.other-expanded::-webkit-scrollbar{
+    display: none; /* Remove o scrollbar do Webkit */
+}
+.math-expanded-ativa,
+.code-expanded-ativa,
+.music-expanded-ativa,
+.other-expanded-ativa{
+    right: 0;
+}
+.math-lesson h4,
+.code-lesson h4,
+.music-lesson h4,
+.other-lesson h4{
+    display: block;
+    margin: 5px 0 20px 0;
+    position: relative;
+}
+.math-lesson h4::after,
+.code-lesson h4::after,
+.music-lesson h4::after,
+.other-lesson h4::after{
+    content: '';
+    width: 50px;
+    height: 4px;
+    background-color: var(--dark-maincolor-detail);
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+}
+#lessons-page.dark-mode-ativo .math-lesson,
+#lessons-page.dark-mode-ativo .code-lesson,
+#lessons-page.dark-mode-ativo .music-lesson,
+#lessons-page.dark-mode-ativo .other-lesson{
+    background-color: var(--darkmode-black);
+    color: var(--darkmode-black);
+}
+
+.curator-div{
+    max-width: 83%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+@media (max-width:1000px){
+    .math-card,
+    .code-card,
+    .music-card,
+    .other-card{
+    height: auto;
+    width: 100%;
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: auto  1fr auto;
+    grid-template-rows: auto 1fr;
+    padding: 10px;
+    gap: 5px;
+    align-items: start;
+    color: var(--darkmode-black);
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+    }
+    .card-img{
+    display: none;
+    }
+}
+
+@media (max-width:800px) {
+    .lesson-main-bg::before{
+        clip-path: polygon(100% 50%, 0% 100%, 100% 100%);
+        content: '';
+        width: 500px;
+        height: 200px;
+        background-color: var(--background-gray);
+        position: absolute;
+        top: -200px;
+        right: 0;
+    }
+    .lesson-main-bg::after{
+        clip-path: polygon(100% 0, 0 100%, 0 0);
+        content: '';
+        width: 100%;
+        height: 100px;
+        background-color: var(--background-gray);
+        position: absolute;
+        bottom: -100px;
+        left: 0;
+        z-index: -1;
+    }
+    .grid-lessons{
+        grid-template-columns: 1fr;
+    }
+    .lessons-card{
+        width: 100%;
+        margin-right: 0;
+        overflow-y: scroll;
+    }
+    .math-card,
+    .code-card,
+    .music-card,
+    .other-card{
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+    }
+    .math-expanded,
+    .code-expanded,
+    .music-expanded,
+    .other-expanded{
+        width: 100%;
+        top: -100%;
+        right: 0;
+        border-radius: 5px;
+        height: 100%;
+        background-color: var(--background-gray);
+        z-index: 2;
+    }
+    .math-expanded.math-expanded-ativa{
+        top: 165px;
+    }
+    .code-expanded.code-expanded-ativa{
+        top: 340px;
+    }
+    .music-expanded.music-expanded-ativa{
+        top: 500px;
+    }
+    .other-expanded.other-expanded-ativa{
+        top: 700px;
+    }
+    .lessons{
+        height: 100%;
+    }
+    .math-expanded,
+    .code-expanded,
+    .music-expanded,
+    .other-expanded{
+        transition: .5s;
+    }
+}

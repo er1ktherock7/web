@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Shantell+Sans:ital,wght@1,700&display=swap');
+
+/* Main Page Background - Kept from original */
+#home-page {
+  background-color: var(--darkmode);
+  background-image: url('../img/home/SD-herik.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: right center;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Hero Section Layout */
+.hero-section {
+  height: calc(100vh - 70px);
+  /* Leaves space for the bottom bar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: left;
+  background-color: rgba(34, 41, 49, 0.7);
+  /* Subtle overlay for text readability */
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  width: 100%;
+  align-items: center;
+  gap: 40px;
+}
+
+.hero-text h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3.8rem;
+  margin-bottom: 10px;
+  position: relative;
+  display: inline-block;
+}
+
+.hero-text h1::after {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 5px;
+  bottom: -10px;
+  left: 0;
+  background-color: var(--light-maincolor-detail);
+}
+
+.hero-text p {
+  margin-top: 25px;
+  font-size: 1.15rem;
+  max-width: 60ch;
+  line-height: 1.6;
+}
+
+.hero-socials {
+  margin-top: 30px;
+  display: flex;
+  gap: 25px;
+  font-size: 2.2rem;
+}
+
+.hero-socials a {
+  transition: transform 0.3s, color 0.3s;
+  color: white;
+}
+
+.hero-socials a:hover {
+  color: var(--light-maincolor-detail);
+  transform: scale(1.1);
+}
+
+.hero-greeting {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.hero-greeting h1 {
+  font-size: 3.5rem;
+  color: var(--light-maincolor-detail);
+  text-align: right;
+  margin: 0;
+}
+
+/* Bottom Navigation Bar - Fixed at the bottom */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 75px;
+  background-color: var(--background-gray);
+  border-top: 4px solid var(--dark-maincolor-detail);
+  z-index: 1000;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+}
+
+.nav-item {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  transition: 0.3s;
+  flex: 1;
+  height: 100%;
+  justify-content: center;
+  gap: 2px;
+}
+
+.nav-item i {
+  font-size: 1.3rem;
+}
+
+/* Specific styling for the Korean/English double translation labels */
+.nav-lang-kr {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.nav-lang-en {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-item:hover {
+  color: var(--light-maincolor-detail);
+  background-color: var(--hover-bg-gray);
+}
+
+/* Optimized Responsive Adjustments for Small Mobiles */
+@media (max-width: 920px) {
+  .hero-text h1 {
+    font-size: 3rem;
+  }
+
+  .hero-greeting h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 850px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .hero-text h1::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .hero-greeting {
+    align-items: center;
+    grid-row: 1;
+  }
+
+  .hero-greeting h1 {
+    text-align: center;
+  }
+
+  .hero-socials {
+    justify-content: center;
+  }
+}
+
+/* Fix for Mobile L (425px) down to Mobile S (320px) */
+@media (max-width: 425px) {
+  .bottom-nav {
+    height: 65px;
+    /* Slightly shorter to save vertical space */
+  }
+
+  .nav-container {
+    padding: 0 5px;
+    /* Reduce side padding */
+  }
+
+  .nav-item i {
+    font-size: 1.1rem;
+    /* Smaller icons */
+  }
+
+  .nav-lang-kr {
+    font-size: 0.85rem;
+    /* Smaller Korean text */
+  }
+
+  .nav-lang-en {
+    font-size: 0.65rem;
+    /* Tiny English subtitle */
+    letter-spacing: 0px;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Extra safety for the smallest phones (320px) */
+@media (max-width: 350px) {
+  .nav-container {
+    gap: 0;
+  }
+
+  .nav-item i {
+    font-size: 1rem;
+  }
+
+  .nav-lang-kr {
+    font-size: 0.8rem;
+  }
+
+  .nav-lang-en {
+    display: none;
+    /* Hides the English sub-label only on the absolute smallest screens */
+  }
+}

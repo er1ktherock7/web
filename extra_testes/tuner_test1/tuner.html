@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chromatic Tuner</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="./js/tuner.js"></script>
+	<link rel="stylesheet" href="css/tuner.css">
+</head>
+<body>
+	<div id="tuner-container">
+		<h1 class="tuner-title">Chromatic Tuner</h1>
+
+		<div class="tuner-display">
+			<div class="tuner-note" id="note">A4</div>
+			<div class="tuner-frequency" id="frequency">440Hz</div>
+		</div>
+
+		<div id="chromatic-wheel">
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+			<div class="chromatic-wheel-segment"></div>
+
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(0deg);">A</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(30deg);">A#</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(60deg);">B</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(90deg);">C</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(120deg);">C#</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(150deg);">D</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(180deg);">D#</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(210deg);">E</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(240deg);">F</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(270deg);">F#</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(300deg);">G</div>
+			<div class="chromatic-wheel-label" style="transform: translate(-50%, -50%) rotate(330deg);">G#</div>
+
+			<div id="pointer"></div>
+		</div>
+	</div>
+</body>
+</html>
