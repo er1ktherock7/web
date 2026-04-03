@@ -3,6 +3,7 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/main-css.css">
   <title>ER Diagram Maker</title>
   <style>
     :root {
@@ -22,20 +23,45 @@
     }
 
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html, body { min-height: 100%; }
     body {
       margin: 0;
-      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
+      background: var(--darkmode-black, #121212);
       color: var(--text);
-      overflow: hidden;
+      overflow-x: hidden;
       user-select: none;
+    }
+
+    .app-intro {
+      padding-top: 150px;
+      padding-bottom: 10px;
+    }
+
+    .app-intro h1 {
+      font-size: 3rem;
+    }
+
+    .return-btn {
+      margin-top: 24px;
+    }
+
+    .der-stage {
+      position: relative;
+      max-width: 1200px;
+      height: min(980px, calc(100vh - 240px));
+      min-height: 760px;
+      margin: 0 auto 80px;
+      overflow: hidden;
+      border-radius: 24px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
     }
 
     button, input, select, textarea { font: inherit; }
 
     .toolbar {
-      position: fixed;
+      position: absolute;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
@@ -101,11 +127,11 @@
     }
 
     .side-panel {
-      position: fixed;
+      position: absolute;
       top: 20px;
       right: 20px;
       width: 330px;
-      max-height: calc(100vh - 40px);
+      max-height: calc(100% - 40px);
       overflow: auto;
       background: rgba(30,30,30,0.96);
       border: 1px solid var(--border);
@@ -166,7 +192,7 @@
     }
 
     .hint-box {
-      position: fixed;
+      position: absolute;
       top: 20px;
       left: 20px;
       background: rgba(30,30,30,0.82);
@@ -203,7 +229,7 @@
     }
 
     .floating-actions {
-      position: fixed;
+      position: absolute;
       left: 20px;
       bottom: 20px;
       display: flex;
@@ -232,8 +258,8 @@
 
     #workspace {
       position: relative;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       background-image:
         radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
@@ -359,7 +385,7 @@
     }
 
     .status-bar {
-      position: fixed;
+      position: absolute;
       right: 20px;
       bottom: 20px;
       z-index: 1000;
@@ -404,7 +430,7 @@
     }
 
     .toast {
-      position: fixed;
+      position: absolute;
       left: 50%;
       bottom: 88px;
       transform: translateX(-50%);
@@ -428,6 +454,67 @@
   </style>
 </head>
 <body>
+  <header id="header" class="header-pages">
+    <div class="logo">
+      <a class="btn-home" href="../index.html">
+      <h3>홈</h3>
+      <img src="../img/icons/home.svg" alt="">
+      </a>
+    </div>
+    <nav id="nav-menu">
+      <button id="btn-mobile" class="menu-toggle">
+        <span id="hamburger"></span>
+      </button>
+      <ul class="header-menu">
+        <li class="menu-item">
+          <a href="../about.html">
+          <h3>나야나</h3>
+          <p>About</p>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="../lessons.html">
+          <h3>수업</h3>
+          <p>Lessons</p>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="../publications.html">
+          <h3>출판물</h3>
+          <p>Publications</p>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="../faq.html">
+          <h3>자자주 묻는 질문</h3>
+          <p>FAQ</p>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="../contact.html">
+          <h3>연락처</h3>
+          <p>Contact</p>
+          </a>
+        </li>
+        <li class="menu-item dark">
+          <h4>Dark Theme</h4>
+          <button class="btn-dark-theme theme-toggle"><div class="dark-mode-indicator"></div></button>
+        </li>
+        <li class="theme theme-toggle">
+          <p>dark mode</p>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="title container app-intro">
+    <h1>ER DIAGRAM MAKER</h1>
+    <p>Sketch tables, relationships, and schema ideas in the browser with the same site navigation around it.</p>
+    <a class="header-btn return-btn" href="../publications.html">Return to Publications</a>
+  </section>
+
+  <section class="container">
+  <div class="der-stage">
   <div class="hint-box">
     <div class="hint-title">⌨️ Shortcuts</div>
     <div class="hint-row"><span>Select / Move</span><span class="kbd">V</span></div>
@@ -1833,6 +1920,36 @@ profile_id:int:fk"></textarea>
 
     init();
   </script>
+  </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <div class="footer-left-start">
+        <img src="../img/icons/logo-light.svg" alt="">
+        <p>© 2023 - All rights reserved</p>
+      </div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-right-start">
+        <a href="../about.html">About</a>
+        <a href="../lessons.html">Lessons</a>
+        <a href="../publications.html">Publications</a>
+      </div>
+
+      <div class="footer-right-mid">
+        <a href="../faq.html">FAQ</a>
+        <a href="../contact.html">Contact</a>
+      </div>
+
+      <div class="footer-right-end">
+        <a href="../about.html">Linkedin</a>
+        <a href="https://www.instagram.com/hrktechit/">Instagram</a>
+      </div>
+    </div>
+  </footer>
+  <script defer type="module" src="../Js/main.js"></script>
+  <script defer type="module" src="../Js/dark-theme.js"></script>
 
 
 </body></html>
