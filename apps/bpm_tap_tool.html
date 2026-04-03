@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main-css.css">
+    <title>BPM Tap Tool</title>
+    <style>
+        :root{--panel:#171d2a;--panel-2:#20293b;--text:#f4f7ff;--muted:#9da9c2;--accent:#8fe388;--accent-2:#7db5ff;--border:rgba(255,255,255,0.08);}
+        body{margin:0;background:var(--darkmode-black);color:var(--text);}
+        .app-intro{padding-top:150px;padding-bottom:10px;}
+        .app-intro h1{font-size:3rem;}
+        .return-btn{margin-top:24px;}
+        .app-shell{padding:20px 20px 80px;}
+        .app-wrap{max-width:1100px;margin:0 auto;background:linear-gradient(180deg,#111726,#0e131d);border:1px solid var(--border);border-radius:24px;padding:32px;box-shadow:rgba(0,0,0,0.28) 0px 20px 40px -12px;}
+        .hero,.controls,.history{display:grid;gap:12px;}
+        .hero p,.help{max-width:70ch;font-family:'Open Sans',sans-serif;color:var(--muted);line-height:1.5;}
+        .layout{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;}
+        .panel{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:18px;padding:24px;}
+        .tap-pad{width:100%;min-height:280px;border-radius:20px;border:1px solid rgba(143,227,136,0.25);background:radial-gradient(circle at center, rgba(143,227,136,0.18), transparent 60%),linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));color:var(--text);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;cursor:pointer;}
+        .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px;}
+        .stat,.history-item{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;}
+        .stat span{display:block;color:var(--muted);margin-bottom:8px;}
+        .stat strong{font-size:1.8rem;font-family:'Karla',sans-serif;}
+        .row{display:grid;gap:8px;}
+        label{color:var(--muted);font-size:.92rem;}
+        input,button{font:inherit;border-radius:12px;border:1px solid var(--border);padding:12px 14px;}
+        input{background:var(--panel-2);color:var(--text);}
+        .btn-row{display:flex;gap:12px;flex-wrap:wrap;}
+        .btn{background:var(--accent-2);color:#0d1420;cursor:pointer;font-weight:700;}
+        .btn.secondary{background:transparent;color:var(--text);}
+        .history{max-height:280px;overflow:auto;margin-top:12px;}
+        .history-item{display:flex;justify-content:space-between;gap:12px;font-family:'Open Sans',sans-serif;}
+        @media (max-width:860px){.layout,.stats{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <header id="header" class="header-pages">
+        <div class="logo"><a class="btn-home" href="../index.html"><h3>홈</h3><img src="../img/icons/home.svg" alt=""></a></div>
+        <nav id="nav-menu"><button id="btn-mobile" class="menu-toggle"><span id="hamburger"></span></button><ul class="header-menu"><li class="menu-item"><a href="../about.html"><h3>나야나</h3><p>About</p></a></li><li class="menu-item"><a href="../lessons.html"><h3>수업</h3><p>Lessons</p></a></li><li class="menu-item"><a href="../publications.html"><h3>출판물</h3><p>Publications</p></a></li><li class="menu-item"><a href="../faq.html"><h3>자자주 묻는 질문</h3><p>FAQ</p></a></li><li class="menu-item"><a href="../contact.html"><h3>연락처</h3><p>Contact</p></a></li><li class="menu-item dark"><h4>Dark Theme</h4><button class="btn-dark-theme theme-toggle"><div class="dark-mode-indicator"></div></button></li><li class="theme theme-toggle"><p>dark mode</p></li></ul></nav>
+    </header>
+    <section class="title container app-intro"><h1>BPM TAP TOOL</h1><p>Tap any steady pulse and get a quick BPM estimate, interval average, and consistency feedback.</p><a class="header-btn return-btn" href="../publications.html">Return to Publications</a></section>
+    <main class="app-shell">
+        <div class="app-wrap">
+            <div class="hero"><h2>Tap To Measure Tempo</h2><p>Use your mouse, touchscreen, or space bar. The tool calculates BPM from recent taps and helps you see whether your timing is drifting.</p></div>
+            <div class="layout">
+                <section class="panel">
+                    <button id="tapPad" class="tap-pad">Tap Here</button>
+                    <div class="stats">
+                        <div class="stat"><span>Estimated BPM</span><strong id="bpmValue">0</strong></div>
+                        <div class="stat"><span>Average Interval</span><strong id="intervalValue">0 ms</strong></div>
+                        <div class="stat"><span>Stability</span><strong id="stabilityValue">Waiting</strong></div>
+                    </div>
+                </section>
+                <section class="panel controls">
+                    <div class="row"><label for="sampleWindow">Number of recent taps used</label><input id="sampleWindow" type="number" min="2" max="12" value="6"></div>
+                    <div class="btn-row"><button id="resetBtn" class="btn">Reset Session</button><button id="copyBtn" class="btn secondary">Copy BPM</button></div>
+                    <div class="help">Keep tapping at the same speed for the most stable result. If you pause too long, the session resets automatically so the next reading stays accurate.</div>
+                    <div class="history" id="historyList"></div>
+                </section>
+            </div>
+        </div>
+    </main>
+    <footer class="footer"><div class="footer-left"><div class="footer-left-start"><img src="../img/icons/logo-light.svg" alt=""><p>© 2023 - All rights reserved</p></div></div><div class="footer-right"><div class="footer-right-start"><a href="../about.html">About</a><a href="../lessons.html">Lessons</a><a href="../publications.html">Publications</a></div><div class="footer-right-mid"><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></div><div class="footer-right-end"><a href="../about.html">Linkedin</a><a href="https://www.instagram.com/hrktechit/">Instagram</a></div></div></footer>
+    <script>
+        const tapPad = document.getElementById('tapPad');
+        const bpmValue = document.getElementById('bpmValue');
+        const intervalValue = document.getElementById('intervalValue');
+        const stabilityValue = document.getElementById('stabilityValue');
+        const historyList = document.getElementById('historyList');
+        const sampleWindow = document.getElementById('sampleWindow');
+        const resetBtn = document.getElementById('resetBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        let taps = [];
+        function resetSession() {
+            taps = [];
+            bpmValue.textContent = '0';
+            intervalValue.textContent = '0 ms';
+            stabilityValue.textContent = 'Waiting';
+            historyList.innerHTML = '';
+        }
+        function updateView() {
+            if (taps.length < 2) return resetSession();
+            const maxIntervals = Math.max(2, Math.min(12, Number(sampleWindow.value) || 6)) - 1;
+            const recent = taps.slice(-1 - maxIntervals);
+            const intervals = recent.slice(1).map((time, index) => time - recent[index]);
+            const average = intervals.reduce((sum, value) => sum + value, 0) / intervals.length;
+            const bpm = Math.round(60000 / average);
+            const variance = intervals.reduce((sum, value) => sum + Math.pow(value - average, 2), 0) / intervals.length;
+            const deviation = Math.sqrt(variance);
+            bpmValue.textContent = String(bpm);
+            intervalValue.textContent = `${Math.round(average)} ms`;
+            if (deviation < 15) stabilityValue.textContent = 'Very steady';
+            else if (deviation < 35) stabilityValue.textContent = 'Stable';
+            else if (deviation < 60) stabilityValue.textContent = 'Loose';
+            else stabilityValue.textContent = 'Drifting';
+            historyList.innerHTML = intervals.slice().reverse().map((value, index) => `<div class="history-item"><span>Tap interval ${intervals.length - index}</span><strong>${Math.round(value)} ms</strong></div>`).join('');
+        }
+        function registerTap() {
+            const now = Date.now();
+            const last = taps[taps.length - 1];
+            if (last && now - last > 3000) taps = [];
+            taps.push(now);
+            if (taps.length > 20) taps = taps.slice(-20);
+            updateView();
+        }
+        tapPad.addEventListener('click', registerTap);
+        sampleWindow.addEventListener('input', updateView);
+        resetBtn.addEventListener('click', resetSession);
+        copyBtn.addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(bpmValue.textContent); copyBtn.textContent = 'Copied'; }
+            catch { copyBtn.textContent = 'Blocked'; }
+            setTimeout(() => copyBtn.textContent = 'Copy BPM', 1200);
+        });
+        window.addEventListener('keydown', (event) => { if (event.code === 'Space') { event.preventDefault(); registerTap(); } });
+    </script>
+    <script defer type="module" src="../Js/main.js"></script>
+    <script defer type="module" src="../Js/dark-theme.js"></script>
+</body>
+</html>

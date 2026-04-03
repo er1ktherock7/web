@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main-css.css">
+    <title>Markdown Previewer</title>
+    <style>
+        :root{--panel:#131a26;--panel-2:#1b2435;--text:#eff4fa;--border:rgba(255,255,255,.08);}
+        body{margin:0;background:var(--darkmode-black);color:var(--text);}
+        .app-intro{padding-top:150px;padding-bottom:10px;}
+        .app-intro h1{font-size:3rem;}
+        .return-btn{margin-top:24px;}
+        .app-shell{padding:20px 20px 80px;}
+        .app-wrap{max-width:1200px;margin:0 auto;border:1px solid var(--border);border-radius:24px;padding:32px;background:linear-gradient(180deg,#121826,#0d121b);}
+        .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+        .toolbar button{font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);cursor:pointer;}
+        .layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+        .panel{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;padding:24px;}
+        textarea{width:100%;min-height:460px;resize:vertical;border:0;background:transparent;color:var(--text);font:inherit;line-height:1.6;}
+        .preview{font-family:'Open Sans',sans-serif;line-height:1.7;}
+        .preview h1,.preview h2,.preview h3{margin:0 0 14px;font-family:'Karla',sans-serif;}
+        .preview p{margin:0 0 14px;}
+        .preview code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:6px;}
+        .preview pre{background:var(--panel-2);padding:14px;border-radius:12px;overflow:auto;}
+        .preview ul{padding-left:20px;}
+        @media (max-width:900px){.layout{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <header id="header" class="header-pages"><div class="logo"><a class="btn-home" href="../index.html"><h3>홈</h3><img src="../img/icons/home.svg" alt=""></a></div><nav id="nav-menu"><button id="btn-mobile" class="menu-toggle"><span id="hamburger"></span></button><ul class="header-menu"><li class="menu-item"><a href="../about.html"><h3>나야나</h3><p>About</p></a></li><li class="menu-item"><a href="../lessons.html"><h3>수업</h3><p>Lessons</p></a></li><li class="menu-item"><a href="../publications.html"><h3>출판물</h3><p>Publications</p></a></li><li class="menu-item"><a href="../faq.html"><h3>자자주 묻는 질문</h3><p>FAQ</p></a></li><li class="menu-item"><a href="../contact.html"><h3>연락처</h3><p>Contact</p></a></li><li class="menu-item dark"><h4>Dark Theme</h4><button class="btn-dark-theme theme-toggle"><div class="dark-mode-indicator"></div></button></li><li class="theme theme-toggle"><p>dark mode</p></li></ul></nav></header>
+    <section class="title container app-intro"><h1>MARKDOWN PREVIEWER</h1><p>Write quick notes and preview basic Markdown formatting side by side.</p><a class="header-btn return-btn" href="../publications.html">Return to Publications</a></section>
+    <main class="app-shell">
+        <div class="app-wrap">
+            <div class="toolbar"><button data-insert="# ">H1</button><button data-insert="## ">H2</button><button data-insert="**bold**">Bold</button><button data-insert="- item">List</button><button data-insert="`code`">Code</button></div>
+            <div class="layout">
+                <section class="panel"><textarea id="markdownInput"># Markdown Previewer
+
+Write on the left and preview on the right.
+
+## Supported formatting
+- headings
+- paragraphs
+- **bold**
+- *italic*
+- `inline code`
+
+```
+code block
+```</textarea></section>
+                <section class="panel"><div class="preview" id="previewOutput"></div></section>
+            </div>
+        </div>
+    </main>
+    <footer class="footer"><div class="footer-left"><div class="footer-left-start"><img src="../img/icons/logo-light.svg" alt=""><p>© 2023 - All rights reserved</p></div></div><div class="footer-right"><div class="footer-right-start"><a href="../about.html">About</a><a href="../lessons.html">Lessons</a><a href="../publications.html">Publications</a></div><div class="footer-right-mid"><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></div><div class="footer-right-end"><a href="../about.html">Linkedin</a><a href="https://www.instagram.com/hrktechit/">Instagram</a></div></div></footer>
+    <script>
+        const input = document.getElementById('markdownInput');
+        const output = document.getElementById('previewOutput');
+        const buttons = document.querySelectorAll('[data-insert]');
+        function escapeHtml(value) { return value.replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char])); }
+        function inlineFormat(text) { return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
+        function renderMarkdown(text) {
+            const lines = text.split('\n');
+            let html = '';
+            let inList = false;
+            let inCode = false;
+            let codeBuffer = [];
+            const flushList = () => { if (inList) { html += '</ul>'; inList = false; } };
+            const flushCode = () => { if (inCode) { html += `<pre><code>${escapeHtml(codeBuffer.join('\n'))}</code></pre>`; inCode = false; codeBuffer = []; } };
+            lines.forEach((line) => {
+                if (line.startsWith('```')) { if (inCode) flushCode(); else { flushList(); inCode = true; } return; }
+                if (inCode) { codeBuffer.push(line); return; }
+                if (line.startsWith('- ')) { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${inlineFormat(line.slice(2))}</li>`; return; }
+                flushList();
+                if (!line.trim()) html += '';
+                else if (line.startsWith('### ')) html += `<h3>${inlineFormat(line.slice(4))}</h3>`;
+                else if (line.startsWith('## ')) html += `<h2>${inlineFormat(line.slice(3))}</h2>`;
+                else if (line.startsWith('# ')) html += `<h1>${inlineFormat(line.slice(2))}</h1>`;
+                else html += `<p>${inlineFormat(line)}</p>`;
+            });
+            flushList();
+            flushCode();
+            return html;
+        }
+        function updatePreview() { output.innerHTML = renderMarkdown(input.value); }
+        buttons.forEach((button) => button.addEventListener('click', () => {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            input.setRangeText(button.dataset.insert, start, end, 'end');
+            input.focus();
+            updatePreview();
+        }));
+        input.addEventListener('input', updatePreview);
+        updatePreview();
+    </script>
+    <script defer type="module" src="../Js/main.js"></script>
+    <script defer type="module" src="../Js/dark-theme.js"></script>
+</body>
+</html>

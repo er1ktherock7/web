@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main-css.css">
+    <title>Regex Tester</title>
+    <style>
+        :root{--panel:#121923;--panel-2:#1a2432;--text:#eef4fb;--muted:#9aa6ba;--border:rgba(255,255,255,.08);}
+        body{margin:0;background:var(--darkmode-black);color:var(--text);}
+        .app-intro{padding-top:150px;padding-bottom:10px;}
+        .app-intro h1{font-size:3rem;}
+        .return-btn{margin-top:24px;}
+        .app-shell{padding:20px 20px 80px;}
+        .app-wrap{max-width:1200px;margin:0 auto;border:1px solid var(--border);border-radius:24px;padding:32px;background:linear-gradient(180deg,#111722,#0e131c);}
+        .layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+        .panel{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;padding:24px;display:grid;gap:16px;}
+        textarea,input{width:100%;font:inherit;padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);}
+        textarea{min-height:220px;resize:vertical;}
+        .flags{display:flex;gap:16px;flex-wrap:wrap;}
+        .flags label{display:flex;gap:8px;align-items:center;color:var(--muted);}
+        .results{display:grid;gap:12px;max-height:360px;overflow:auto;}
+        .result-item{padding:14px;border-radius:12px;background:var(--panel);border:1px solid var(--border);}
+        .result-item strong{display:block;margin-bottom:6px;font-family:'Karla',sans-serif;}
+        .preview{white-space:pre-wrap;line-height:1.55;font-family:'Open Sans',sans-serif;}
+        mark{background:rgba(128,255,196,.25);color:var(--text);padding:1px 2px;border-radius:4px;}
+        .helper{color:var(--muted);font-family:'Open Sans',sans-serif;}
+        @media (max-width:900px){.layout{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <header id="header" class="header-pages"><div class="logo"><a class="btn-home" href="../index.html"><h3>홈</h3><img src="../img/icons/home.svg" alt=""></a></div><nav id="nav-menu"><button id="btn-mobile" class="menu-toggle"><span id="hamburger"></span></button><ul class="header-menu"><li class="menu-item"><a href="../about.html"><h3>나야나</h3><p>About</p></a></li><li class="menu-item"><a href="../lessons.html"><h3>수업</h3><p>Lessons</p></a></li><li class="menu-item"><a href="../publications.html"><h3>출판물</h3><p>Publications</p></a></li><li class="menu-item"><a href="../faq.html"><h3>자자주 묻는 질문</h3><p>FAQ</p></a></li><li class="menu-item"><a href="../contact.html"><h3>연락처</h3><p>Contact</p></a></li><li class="menu-item dark"><h4>Dark Theme</h4><button class="btn-dark-theme theme-toggle"><div class="dark-mode-indicator"></div></button></li><li class="theme theme-toggle"><p>dark mode</p></li></ul></nav></header>
+    <section class="title container app-intro"><h1>REGEX TESTER</h1><p>Test expressions, inspect matches, and preview replacements without leaving the browser.</p><a class="header-btn return-btn" href="../publications.html">Return to Publications</a></section>
+    <main class="app-shell">
+        <div class="app-wrap">
+            <div class="layout">
+                <section class="panel">
+                    <div><label for="pattern">Pattern</label><input id="pattern" type="text" value="\\b\\w{4}\\b"></div>
+                    <div class="flags"><label><input type="checkbox" value="g" checked> Global</label><label><input type="checkbox" value="i"> Ignore case</label><label><input type="checkbox" value="m"> Multiline</label><label><input type="checkbox" value="s"> Dotall</label></div>
+                    <div><label for="replacement">Replacement pattern</label><input id="replacement" type="text" value="[$&]"></div>
+                    <div><label for="sourceText">Source text</label><textarea id="sourceText">This regex tester can find words, numbers, ids, dates, or repeated patterns.
+Try changing the expression and flags to see how the matches update.</textarea></div>
+                </section>
+                <section class="panel">
+                    <div class="helper" id="statusText">Matches will appear here as soon as the expression is valid.</div>
+                    <div class="preview" id="highlightPreview"></div>
+                    <div class="preview" id="replacementPreview"></div>
+                    <div class="results" id="resultsList"></div>
+                </section>
+            </div>
+        </div>
+    </main>
+    <footer class="footer"><div class="footer-left"><div class="footer-left-start"><img src="../img/icons/logo-light.svg" alt=""><p>© 2023 - All rights reserved</p></div></div><div class="footer-right"><div class="footer-right-start"><a href="../about.html">About</a><a href="../lessons.html">Lessons</a><a href="../publications.html">Publications</a></div><div class="footer-right-mid"><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></div><div class="footer-right-end"><a href="../about.html">Linkedin</a><a href="https://www.instagram.com/hrktechit/">Instagram</a></div></div></footer>
+    <script>
+        const patternInput = document.getElementById('pattern');
+        const replacementInput = document.getElementById('replacement');
+        const sourceText = document.getElementById('sourceText');
+        const resultsList = document.getElementById('resultsList');
+        const statusText = document.getElementById('statusText');
+        const highlightPreview = document.getElementById('highlightPreview');
+        const replacementPreview = document.getElementById('replacementPreview');
+        const flagInputs = Array.from(document.querySelectorAll('.flags input'));
+        function escapeHtml(value) { return value.replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char])); }
+        function activeFlags() { return flagInputs.filter((input) => input.checked).map((input) => input.value).join(''); }
+        function render() {
+            const pattern = patternInput.value;
+            const text = sourceText.value;
+            const replacement = replacementInput.value;
+            resultsList.innerHTML = '';
+            try {
+                const regex = new RegExp(pattern, activeFlags());
+                const matches = [...text.matchAll(regex)];
+                statusText.textContent = `${matches.length} match${matches.length === 1 ? '' : 'es'} found with flags "${activeFlags() || '(none)'}".`;
+                if (!matches.length) { highlightPreview.textContent = text; replacementPreview.textContent = text; return; }
+                let highlighted = '';
+                let cursor = 0;
+                matches.forEach((match) => {
+                    const index = match.index ?? 0;
+                    highlighted += escapeHtml(text.slice(cursor, index));
+                    highlighted += `<mark>${escapeHtml(match[0])}</mark>`;
+                    cursor = index + match[0].length;
+                });
+                highlighted += escapeHtml(text.slice(cursor));
+                highlightPreview.innerHTML = highlighted;
+                replacementPreview.textContent = text.replace(regex, replacement);
+                resultsList.innerHTML = matches.map((match, index) => `<div class="result-item"><strong>Match ${index + 1}</strong><div>Value: ${escapeHtml(match[0])}</div><div>Index: ${match.index ?? 0}</div></div>`).join('');
+            } catch (error) {
+                statusText.textContent = `Invalid regex: ${error.message}`;
+                highlightPreview.textContent = text;
+                replacementPreview.textContent = '';
+                resultsList.innerHTML = '';
+            }
+        }
+        [patternInput, replacementInput, sourceText, ...flagInputs].forEach((element) => element.addEventListener('input', render));
+        render();
+    </script>
+    <script defer type="module" src="../Js/main.js"></script>
+    <script defer type="module" src="../Js/dark-theme.js"></script>
+</body>
+</html>
