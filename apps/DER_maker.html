@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)file:///C:/Users/lucas/Desktop/HTML%20projects/DER_maker.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ER Diagram Maker</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --panel-2: #232329;
+      --border: #333;
+      --border-2: #4b4b4b;
+      --accent: #6965db;
+      --accent-2: #8d8aff;
+      --text: #ececed;
+      --muted: #b8b8c2;
+      --success: #3fb950;
+      --danger: #ff6b6b;
+      --warn: #d29922;
+      --shadow: 0 8px 32px rgba(0,0,0,0.38);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .toolbar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30,30,30,0.95);
+      backdrop-filter: blur(10px);
+      padding: 8px;
+      border-radius: 14px;
+      display: flex;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      z-index: 1000;
+      align-items: center;
+    }
+
+    .tool-btn {
+      min-width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: 0.18s ease;
+      padding: 0 8px;
+    }
+
+    .tool-btn small {
+      opacity: 0.58;
+      font-size: 9px;
+      line-height: 1;
+      margin-top: 3px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .tool-btn:hover { background: #2d2d2d; }
+    .tool-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .toolbar-sep, .panel-sep {
+      width: 1px;
+      align-self: stretch;
+      background: var(--border);
+      margin: 0 4px;
+    }
+
+    .color-input {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      padding: 0;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .side-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 330px;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      background: rgba(30,30,30,0.96);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .panel-header {
+      padding: 16px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(30,30,30,0.98);
+      z-index: 2;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .panel-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel-body {
+      padding: 14px 16px 16px;
+    }
+
+    .field { margin-bottom: 12px; }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .input, .textarea, .select {
+      width: 100%;
+      background: #151515;
+      color: var(--text);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .textarea {
+      min-height: 86px;
+      resize: vertical;
+    }
+
+    .hint-box {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(30,30,30,0.82);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 12px;
+      z-index: 900;
+      backdrop-filter: blur(8px);
+      min-width: 240px;
+    }
+
+    .hint-title {
+      color: var(--accent-2);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .hint-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    .kbd {
+      background: #333;
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 6px;
+      border-bottom: 2px solid #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .floating-actions {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+      flex-wrap: wrap;
+      max-width: min(72vw, 1200px);
+    }
+
+    .btn-action {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      transition: 0.18s ease;
+    }
+    .btn-action:hover { background: #2d2d2d; }
+    .btn-action.success { background: rgba(63,185,80,0.14); color: #9befa6; }
+    .btn-action.warn { background: rgba(210,153,34,0.14); color: #ffd98b; }
+    .btn-action.danger { background: rgba(255,107,107,0.14); color: #ffc0c0; }
+
+    #workspace {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 28px 28px, 112px 112px, 112px 112px;
+      background-position: 0 0, 0 0, 0 0;
+    }
+
+    #camera {
+      position: absolute;
+      inset: 0;
+      transform-origin: 0 0;
+    }
+
+    #svg-layer, #entity-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    #svg-layer {
+      overflow: visible;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #entity-layer { z-index: 10; }
+
+    .entity {
+      position: absolute;
+      min-width: 210px;
+      min-height: 120px;
+      background: var(--panel-2);
+      border: 2px solid #e7e7ef;
+      border-radius: 12px;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.28);
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .entity.selected {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(105,101,219,0.65), 4px 4px 0 rgba(0,0,0,0.28);
+    }
+
+    .entity-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .entity-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      background: rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+    }
+
+    .attrs { padding: 8px 0; }
+
+    .attr-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 12px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-size: 12px;
+    }
+
+    .attr-row:first-child { border-top: 0; }
+    .attr-icons { display: flex; gap: 4px; }
+
+    .pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+
+    .pill.pk { color: #ffdc8c; background: rgba(210,153,34,0.15); }
+    .pill.fk { color: #8dc8ff; background: rgba(88,166,255,0.16); }
+    .pill.nn { color: #bfffb4; background: rgba(63,185,80,0.12); }
+
+    .attr-name { color: var(--text); }
+    .attr-type { color: var(--muted); font-size: 11px; }
+
+    .resizer {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 16px;
+      height: 16px;
+      cursor: nwse-resize;
+      background: linear-gradient(135deg, transparent 0 42%, var(--accent-2) 42% 58%, transparent 58% 100%);
+      opacity: 0.9;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 12px 12px;
+    }
+
+    .status-bar {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(30,30,30,0.95);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mini-btn {
+      border: 1px solid var(--border);
+      background: #202020;
+      color: var(--text);
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .mini-btn:hover { background: #2d2d2d; }
+
+    .hidden { display: none !important; }
+    .muted { color: var(--muted); }
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
+
+    .connection-label {
+      fill: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(18,18,18,0.9);
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 88px;
+      transform: translateX(-50%);
+      background: rgba(32,32,32,0.96);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: var(--shadow);
+      z-index: 1100;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-6px);
+    }
+  </style>
+</head>
+<body>
+  <div class="hint-box">
+    <div class="hint-title">⌨️ Shortcuts</div>
+    <div class="hint-row"><span>Select / Move</span><span class="kbd">V</span></div>
+    <div class="hint-row"><span>New Entity</span><span class="kbd">E</span></div>
+    <div class="hint-row"><span>Connect</span><span class="kbd">L</span></div>
+    <div class="hint-row"><span>Tidy Layout</span><span class="kbd">T</span></div>
+    <div class="hint-row"><span>Delete</span><span class="kbd">Del</span></div>
+    <div class="hint-row"><span>Undo / Redo</span><span class="kbd">Ctrl+Z / Y</span></div>
+    <div class="hint-row"><span>Zoom</span><span class="kbd">Ctrl + Wheel</span></div>
+    <div class="hint-row"><span>Pan</span><span class="kbd">Space + Drag</span></div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool-btn active" data-tool="select" title="Select"><span>🖱️</span><small>V</small></button>
+    <button class="tool-btn" data-tool="entity" title="Entity"><span>🧩</span><small>E</small></button>
+    <button class="tool-btn" data-tool="connect" title="Relationship"><span>🔗</span><small>L</small></button>
+    <div class="toolbar-sep"></div>
+    <button class="tool-btn" id="fitBtn" title="Fit to screen"><span>🎯</span><small>FIT</small></button>
+    <button class="tool-btn" id="centerBtn" title="Center canvas"><span>🧭</span><small>C</small></button>
+    <button class="tool-btn" id="tidyBtn" title="Auto tidy layout"><span>🪄</span><small>TIDY</small></button>
+    <div class="toolbar-sep"></div>
+    <input class="color-input" type="color" id="themeColor" value="#6965db" title="Connection color">
+  </div>
+
+  <aside class="side-panel">
+    <div class="panel-header">
+      <h3 class="panel-title">ER Diagram Maker</h3>
+      <div class="panel-subtitle">Clean rebuild with reliable import, paste import, and stronger auto-layout.</div>
+    </div>
+    <div class="panel-body">
+      <div id="nothingSelected">
+        <div class="field">
+          <label>Quick start</label>
+          <div class="muted" style="font-size:12px; line-height:1.5;">
+            Add entities, draw connections, then import/export JSON. Suggested upgrades included here: paste JSON import, safer validation, collision reduction, dynamic lane layout, and fit-to-screen after import.
+          </div>
+        </div>
+      </div>
+
+      <div id="entityEditor" class="hidden">
+        <div class="field">
+          <label for="entityName">Entity name</label>
+          <input class="input" id="entityName" placeholder="users">
+        </div>
+        <div class="field row">
+          <div>
+            <label for="entityType">Badge</label>
+            <select class="select" id="entityType">
+              <option value="table">Table</option>
+              <option value="view">View</option>
+              <option value="join">Join</option>
+              <option value="lookup">Lookup</option>
+            </select>
+          </div>
+          <div>
+            <label for="entityColor">Accent</label>
+            <input class="color-input" type="color" id="entityColor" value="#6965db">
+          </div>
+        </div>
+        <div class="field">
+          <label for="entityAttrs">Attributes (one per line)</label>
+          <textarea class="textarea" id="entityAttrs" placeholder="id:int:pk,nn
+email:varchar(255):nn
+profile_id:int:fk"></textarea>
+        </div>
+        <div class="field muted" style="font-size:11px; line-height:1.5;">
+          Format: <strong>name:type:flags</strong> where flags can be <strong>pk</strong>, <strong>fk</strong>, <strong>nn</strong>. Combine with commas, like <strong>id:int:pk,nn</strong>.
+        </div>
+      </div>
+
+      <div id="connEditor" class="hidden">
+        <div class="field">
+          <label for="connName">Relationship label</label>
+          <input class="input" id="connName" placeholder="places / belongs to / has many">
+        </div>
+        <div class="field row">
+          <div>
+            <label for="connStart">From cardinality</label>
+            <select class="select" id="connStart">
+              <option value="1">1</option>
+              <option value="0..1">0..1</option>
+              <option value="*">*</option>
+              <option value="1..*">1..*</option>
+            </select>
+          </div>
+          <div>
+            <label for="connEnd">To cardinality</label>
+            <select class="select" id="connEnd">
+              <option value="1">1</option>
+              <option value="0..1">0..1</option>
+              <option value="*">*</option>
+              <option value="1..*">1..*</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="connColor">Connection color</label>
+          <input class="color-input" type="color" id="connColor" value="#58a6ff">
+        </div>
+      </div>
+
+      <div class="panel-sep" style="height:1px; width:100%; margin:14px 0;"></div>
+      <div class="field row">
+        <button class="btn-action" id="duplicateBtn">Duplicate</button>
+        <button class="btn-action danger" id="deleteBtn">Delete</button>
+      </div>
+      <div class="field row">
+        <button class="btn-action" id="addSampleBtn">Sample schema</button>
+        <button class="btn-action warn" id="clearBtn">Clear all</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="floating-actions">
+    <button class="btn-action" id="undoBtn">↩ Undo</button>
+    <button class="btn-action" id="redoBtn">↪ Redo</button>
+    <div class="toolbar-sep"></div>
+    <button class="btn-action warn" id="exportJsonBtn">📤 Export JSON</button>
+    <button class="btn-action" id="importJsonBtn">📥 Import JSON</button>
+    <button class="btn-action" id="pasteJsonBtn">📝 Paste JSON</button>
+    <button class="btn-action success" id="copyJsonBtn">📋 Copy JSON</button>
+    <input id="importFile" type="file" accept="application/json,.json" class="hidden">
+  </div>
+
+  <div class="status-bar">
+    <button class="mini-btn" id="zoomOutBtn">−</button>
+    <span id="zoomText">59%</span>
+    <button class="mini-btn" id="zoomInBtn">+</button>
+  </div>
+
+  <div id="workspace">
+    <div id="camera" style="transform: translate(412.721px, 9.11628px) scale(0.590698);">
+      <svg id="svg-layer"><g data-conn-id="rel_heq0t8f5r5w" style="pointer-events: auto; cursor: pointer;"><line x1="919.078947368421" y1="290" x2="662.5" y2="680" stroke="transparent" stroke-width="14"></line><line x1="919.078947368421" y1="290" x2="662.5" y2="680" stroke="#8d8aff" stroke-width="2.5"></line><text x="790.7894736842105" y="475" text-anchor="middle" class="connection-label">places</text><line x1="912.3956107104696" y1="285.60306798818976" x2="925.7622840263725" y2="294.39693201181024" stroke="#8d8aff" stroke-width="2.4" stroke-linecap="round"></line><line x1="662.5" y1="680" x2="662.4120613597638" y2="665.5780630012625" stroke="#8d8aff" stroke-width="2" stroke-linecap="round"></line><line x1="662.5" y1="680" x2="675.7787346756668" y2="674.371927024883" stroke="#8d8aff" stroke-width="2" stroke-linecap="round"></line><line x1="662.5" y1="680" x2="669.6450145191916" y2="669.1395779308288" stroke="#8d8aff" stroke-width="2" stroke-linecap="round"></line></g><g data-conn-id="rel_flnhpfz5r5w" style="pointer-events: auto; cursor: pointer;"><line x1="600.8558558558559" y1="680" x2="604.0990990990991" y2="320" stroke="transparent" stroke-width="14"></line><line x1="600.8558558558559" y1="680" x2="604.0990990990991" y2="320" stroke="#58a6ff" stroke-width="2.5"></line><text x="602.4774774774776" y="490" text-anchor="middle" class="connection-label">contains</text><line x1="608.8555312266432" y1="680.0720691474845" x2="592.8561804850686" y2="679.9279308525155" stroke="#58a6ff" stroke-width="2.4" stroke-linecap="round"></line><line x1="604.0990990990991" y1="320" x2="611.9906707486596" y2="332.0715822036655" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"></line><line x1="604.0990990990991" y1="320" x2="595.991320007085" y2="331.9274439086964" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"></line><line x1="604.0990990990991" y1="320" x2="603.9819867344368" y2="332.99947247752937" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"></line></g><g data-conn-id="rel_h7l7rmb5r5w" style="pointer-events: auto; cursor: pointer;"><line x1="286.53846153846155" y1="1240" x2="573.7782805429864" y2="320" stroke="transparent" stroke-width="14"></line><line x1="286.53846153846155" y1="1240" x2="573.7782805429864" y2="320" stroke="#3fb950" stroke-width="2.5"></line><text x="430.158371040724" y="770" text-anchor="middle" class="connection-label">referenced by</text><line x1="294.17491595076535" y1="1242.3842323730723" x2="278.90200712615774" y2="1237.6157676269277" stroke="#3fb950" stroke-width="2.4" stroke-linecap="round"></line><line x1="573.7782805429864" y1="320" x2="577.8383863956818" y2="333.83891399152793" stroke="#3fb950" stroke-width="2" stroke-linecap="round"></line><line x1="573.7782805429864" y1="320" x2="562.5654775710742" y2="329.0704492453835" stroke="#3fb950" stroke-width="2" stroke-linecap="round"></line><line x1="573.7782805429864" y1="320" x2="569.9039029367441" y2="332.4092384199937" stroke="#3fb950" stroke-width="2" stroke-linecap="round"></line></g></svg>
+      <div id="entity-layer"><div class="entity" data-id="ent_njarg0t5r5w" style="left: 840px; top: 120px; width: 270px; height: 170px;">
+          <div class="entity-header" style="background: linear-gradient(180deg, rgba(105, 101, 219, 0.22), rgba(105, 101, 219, 0.08));">
+            <div class="entity-title">users</div>
+            <div class="badge">table</div>
+          </div>
+          <div class="attrs">
+            <div class="attr-row">
+              <div class="attr-icons">
+                <span class="pill pk">PK</span>
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">id</div>
+              <div class="attr-type">uuid</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">name</div>
+              <div class="attr-type">varchar(120)</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">email</div>
+              <div class="attr-type">varchar(255)</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                
+              </div>
+              <div class="attr-name">created_at</div>
+              <div class="attr-type">timestamp</div>
+            </div>
+          </div>
+          <div class="resizer"></div>
+        </div><div class="entity" data-id="ent_zkpsoxx5r5w" style="left: 460px; top: 680px; width: 280px; height: 190px;">
+          <div class="entity-header" style="background: linear-gradient(180deg, rgba(88, 166, 255, 0.22), rgba(88, 166, 255, 0.08));">
+            <div class="entity-title">orders</div>
+            <div class="badge">table</div>
+          </div>
+          <div class="attrs">
+            <div class="attr-row">
+              <div class="attr-icons">
+                <span class="pill pk">PK</span>
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">id</div>
+              <div class="attr-type">bigint</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                <span class="pill fk">FK</span>
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">user_id</div>
+              <div class="attr-type">uuid</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">status</div>
+              <div class="attr-type">varchar(30)</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">total_amount</div>
+              <div class="attr-type">decimal(10,2)</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                
+              </div>
+              <div class="attr-name">created_at</div>
+              <div class="attr-type">timestamp</div>
+            </div>
+          </div>
+          <div class="resizer"></div>
+        </div><div class="entity" data-id="ent_geitr6v5r5w" style="left: 460px; top: 120px; width: 290px; height: 200px;">
+          <div class="entity-header" style="background: linear-gradient(180deg, rgba(63, 185, 80, 0.22), rgba(63, 185, 80, 0.08));">
+            <div class="entity-title">order_items</div>
+            <div class="badge">table</div>
+          </div>
+          <div class="attrs">
+            <div class="attr-row">
+              <div class="attr-icons">
+                <span class="pill pk">PK</span>
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">id</div>
+              <div class="attr-type">bigint</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                <span class="pill fk">FK</span>
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">order_id</div>
+              <div class="attr-type">bigint</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                <span class="pill fk">FK</span>
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">product_id</div>
+              <div class="attr-type">bigint</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">quantity</div>
+              <div class="attr-type">int</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">unit_price</div>
+              <div class="attr-type">decimal(10,2)</div>
+            </div>
+          </div>
+          <div class="resizer"></div>
+        </div><div class="entity" data-id="ent_fkcahcf5r5w" style="left: 120px; top: 1240px; width: 280px; height: 170px;">
+          <div class="entity-header" style="background: linear-gradient(180deg, rgba(210, 153, 34, 0.22), rgba(210, 153, 34, 0.08));">
+            <div class="entity-title">products</div>
+            <div class="badge">lookup</div>
+          </div>
+          <div class="attrs">
+            <div class="attr-row">
+              <div class="attr-icons">
+                <span class="pill pk">PK</span>
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">id</div>
+              <div class="attr-type">bigint</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">sku</div>
+              <div class="attr-type">varchar(60)</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">name</div>
+              <div class="attr-type">varchar(180)</div>
+            </div>
+          
+            <div class="attr-row">
+              <div class="attr-icons">
+                
+                
+                <span class="pill nn">NN</span>
+              </div>
+              <div class="attr-name">price</div>
+              <div class="attr-type">decimal(10,2)</div>
+            </div>
+          </div>
+          <div class="resizer"></div>
+        </div></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Sample schema added</div>
+
+  <script>
+    const STORAGE_KEY = 'er_diagram_maker_rebuilt_v1';
+
+    const state = {
+      entities: [],
+      connections: [],
+      selected: null,
+      tool: 'select',
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+    };
+
+    const history = { undo: [], redo: [] };
+    const ui = {};
+
+    let dragState = null;
+    let panState = null;
+    let connectState = null;
+    let tempLine = null;
+    let toastTimer = null;
+
+    function uid(prefix = 'id') {
+      return `${prefix}_${Math.random().toString(36).slice(2, 9)}${Date.now().toString(36).slice(-4)}`;
+    }
+
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function showToast(message) {
+      ui.toast.textContent = message;
+      ui.toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => ui.toast.classList.remove('show'), 1600);
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function hexToRgba(hex, alpha) {
+      const h = (hex || '#6965db').replace('#', '');
+      const value = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+      const num = parseInt(value, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function saveLocal() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        entities: state.entities,
+        connections: state.connections,
+        zoom: state.zoom,
+        panX: state.panX,
+        panY: state.panY,
+      }));
+    }
+
+    function loadLocal() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      try {
+        const parsed = JSON.parse(raw);
+        state.entities = Array.isArray(parsed.entities) ? parsed.entities : [];
+        state.connections = Array.isArray(parsed.connections) ? parsed.connections : [];
+        state.zoom = Number.isFinite(parsed.zoom) ? parsed.zoom : 1;
+        state.panX = Number.isFinite(parsed.panX) ? parsed.panX : 0;
+        state.panY = Number.isFinite(parsed.panY) ? parsed.panY : 0;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function snapshot() {
+      return deepClone({
+        entities: state.entities,
+        connections: state.connections,
+        selected: state.selected,
+        zoom: state.zoom,
+        panX: state.panX,
+        panY: state.panY,
+      });
+    }
+
+    function restore(snap) {
+      state.entities = snap.entities || [];
+      state.connections = snap.connections || [];
+      state.selected = snap.selected || null;
+      state.zoom = snap.zoom || 1;
+      state.panX = snap.panX || 0;
+      state.panY = snap.panY || 0;
+      render();
+    }
+
+    function pushHistory() {
+      history.undo.push(snapshot());
+      history.redo = [];
+      if (history.undo.length > 80) history.undo.shift();
+    }
+
+    function undo() {
+      if (!history.undo.length) return;
+      history.redo.push(snapshot());
+      restore(history.undo.pop());
+      showToast('Undo');
+    }
+
+    function redo() {
+      if (!history.redo.length) return;
+      history.undo.push(snapshot());
+      restore(history.redo.pop());
+      showToast('Redo');
+    }
+
+    function setTool(tool) {
+      state.tool = tool;
+      document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tool === tool);
+      });
+      if (tool === 'connect') showToast('Connect mode');
+    }
+
+    function defaultAttributes() {
+      return [
+        { name: 'id', type: 'int', flags: ['pk', 'nn'] },
+        { name: 'created_at', type: 'timestamp', flags: [] },
+      ];
+    }
+
+    function createEntity(x = 120, y = 120) {
+      return {
+        id: uid('ent'),
+        name: `entity_${state.entities.length + 1}`,
+        badge: 'table',
+        x, y,
+        w: 260,
+        h: 150,
+        color: '#6965db',
+        attributes: defaultAttributes(),
+      };
+    }
+
+    function addEntity(x, y) {
+      pushHistory();
+      const entity = createEntity(x, y);
+      state.entities.push(entity);
+      state.selected = { type: 'entity', id: entity.id };
+      render();
+      showToast('Entity added');
+    }
+
+    function addConnection(fromId, toId) {
+      if (!fromId || !toId || fromId === toId) return;
+      pushHistory();
+      state.connections.push({
+        id: uid('rel'),
+        from: fromId,
+        to: toId,
+        label: 'relates to',
+        startCard: '1',
+        endCard: '*',
+        color: document.getElementById('themeColor').value,
+      });
+      state.selected = { type: 'connection', id: state.connections[state.connections.length - 1].id };
+      render();
+      showToast('Relationship added');
+    }
+
+    function deleteSelected() {
+      if (!state.selected) return;
+      pushHistory();
+      if (state.selected.type === 'entity') {
+        const id = state.selected.id;
+        state.entities = state.entities.filter(e => e.id !== id);
+        state.connections = state.connections.filter(c => c.from !== id && c.to !== id);
+      } else {
+        state.connections = state.connections.filter(c => c.id !== state.selected.id);
+      }
+      state.selected = null;
+      render();
+      showToast('Deleted');
+    }
+
+    function duplicateSelected() {
+      if (!state.selected || state.selected.type !== 'entity') return;
+      const original = state.entities.find(e => e.id === state.selected.id);
+      if (!original) return;
+      pushHistory();
+      const copy = deepClone(original);
+      copy.id = uid('ent');
+      copy.name = `${original.name}_copy`;
+      copy.x += 40;
+      copy.y += 40;
+      state.entities.push(copy);
+      state.selected = { type: 'entity', id: copy.id };
+      render();
+      showToast('Duplicated');
+    }
+
+    function clearAll() {
+      pushHistory();
+      state.entities = [];
+      state.connections = [];
+      state.selected = null;
+      render();
+      showToast('Canvas cleared');
+    }
+
+    function parseAttributes(text) {
+  if (!text) return [];
+
+  return text
+    .split('\n')                 //  force line-by-line
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const parts = line.split(':');
+      return {
+        name: parts[0] || 'column',
+        type: parts[1] || 'string',
+        flags: parts.slice(2) || []
+      };
+    });
+}
+
+    function attrsToText(attrs) {
+      return (attrs || []).map(attr => {
+        const flags = (attr.flags || []).join(',');
+        return `${attr.name}:${attr.type}${flags ? ':' + flags : ''}`;
+      }).join('\n');
+    }
+
+    function getSelectedEntity() {
+      if (!state.selected || state.selected.type !== 'entity') return null;
+      return state.entities.find(e => e.id === state.selected.id) || null;
+    }
+
+    function getSelectedConnection() {
+      if (!state.selected || state.selected.type !== 'connection') return null;
+      return state.connections.find(c => c.id === state.selected.id) || null;
+    }
+
+    function updatePanel() {
+      const entity = getSelectedEntity();
+      const conn = getSelectedConnection();
+      ui.nothingSelected.classList.toggle('hidden', !!entity || !!conn);
+      ui.entityEditor.classList.toggle('hidden', !entity);
+      ui.connEditor.classList.toggle('hidden', !conn);
+
+      if (entity) {
+        ui.entityName.value = entity.name;
+        ui.entityType.value = entity.badge;
+        ui.entityColor.value = entity.color;
+        ui.entityAttrs.value = attrsToText(entity.attributes);
+      }
+
+      if (conn) {
+        ui.connName.value = conn.label;
+        ui.connStart.value = conn.startCard;
+        ui.connEnd.value = conn.endCard;
+        ui.connColor.value = conn.color;
+      }
+    }
+
+    function entityCenter(entity) {
+      return { x: entity.x + entity.w / 2, y: entity.y + entity.h / 2 };
+    }
+
+    function intersectRect(entity, toward) {
+      const cx = entity.x + entity.w / 2;
+      const cy = entity.y + entity.h / 2;
+      const dx = toward.x - cx;
+      const dy = toward.y - cy;
+      if (dx === 0 && dy === 0) return { x: cx, y: cy };
+      const hw = entity.w / 2;
+      const hh = entity.h / 2;
+      const sx = hw / Math.abs(dx || 0.0001);
+      const sy = hh / Math.abs(dy || 0.0001);
+      const s = Math.min(sx, sy);
+      return { x: cx + dx * s, y: cy + dy * s };
+    }
+
+    function screenToWorld(clientX, clientY) {
+      const rect = ui.workspace.getBoundingClientRect();
+      return {
+        x: (clientX - rect.left - state.panX) / state.zoom,
+        y: (clientY - rect.top - state.panY) / state.zoom,
+      };
+    }
+
+    function drawCardinalityMarker(group, point, angle, card, color) {
+      const ns = 'http://www.w3.org/2000/svg';
+      const size = 12;
+      const spread = 8;
+      const ux = Math.cos(angle);
+      const uy = Math.sin(angle);
+      const px = -uy;
+      const py = ux;
+
+      function line(x1, y1, x2, y2, width = 2) {
+        const el = document.createElementNS(ns, 'line');
+        el.setAttribute('x1', x1);
+        el.setAttribute('y1', y1);
+        el.setAttribute('x2', x2);
+        el.setAttribute('y2', y2);
+        el.setAttribute('stroke', color);
+        el.setAttribute('stroke-width', width);
+        el.setAttribute('stroke-linecap', 'round');
+        group.appendChild(el);
+      }
+
+      if (card === '1') {
+        line(point.x - px * spread, point.y - py * spread, point.x + px * spread, point.y + py * spread, 2.4);
+        return;
+      }
+      if (card === '0..1') {
+        const circle = document.createElementNS(ns, 'circle');
+        circle.setAttribute('cx', point.x - ux * 10);
+        circle.setAttribute('cy', point.y - uy * 10);
+        circle.setAttribute('r', 4.5);
+        circle.setAttribute('fill', 'none');
+        circle.setAttribute('stroke', color);
+        circle.setAttribute('stroke-width', '2');
+        group.appendChild(circle);
+        line(point.x - px * spread, point.y - py * spread, point.x + px * spread, point.y + py * spread, 2.4);
+        return;
+      }
+      if (card === '*') {
+        line(point.x, point.y, point.x - ux * size + px * spread, point.y - uy * size + py * spread);
+        line(point.x, point.y, point.x - ux * size - px * spread, point.y - uy * size - py * spread);
+        line(point.x, point.y, point.x - ux * (size + 1), point.y - uy * (size + 1));
+        return;
+      }
+      if (card === '1..*') {
+        line(point.x - ux * 8 - px * spread, point.y - uy * 8 - py * spread, point.x - ux * 8 + px * spread, point.y - uy * 8 + py * spread, 2.4);
+        line(point.x, point.y, point.x - ux * size + px * spread, point.y - uy * size + py * spread);
+        line(point.x, point.y, point.x - ux * size - px * spread, point.y - uy * size - py * spread);
+        line(point.x, point.y, point.x - ux * (size + 1), point.y - uy * (size + 1));
+      }
+    }
+
+    function renderConnections() {
+      ui.svg.innerHTML = '';
+      state.connections.forEach(conn => {
+        const from = state.entities.find(e => e.id === conn.from);
+        const to = state.entities.find(e => e.id === conn.to);
+        if (!from || !to) return;
+
+        const a = entityCenter(from);
+        const b = entityCenter(to);
+        const start = intersectRect(from, b);
+        const end = intersectRect(to, a);
+        const midX = (start.x + end.x) / 2;
+        const midY = (start.y + end.y) / 2;
+        const angle = Math.atan2(end.y - start.y, end.x - start.x);
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('data-conn-id', conn.id);
+        g.style.pointerEvents = 'auto';
+        g.style.cursor = 'pointer';
+
+        const hit = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        hit.setAttribute('x1', start.x);
+        hit.setAttribute('y1', start.y);
+        hit.setAttribute('x2', end.x);
+        hit.setAttribute('y2', end.y);
+        hit.setAttribute('stroke', 'transparent');
+        hit.setAttribute('stroke-width', '14');
+        hit.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          state.selected = { type: 'connection', id: conn.id };
+          render();
+        });
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', start.x);
+        line.setAttribute('y1', start.y);
+        line.setAttribute('x2', end.x);
+        line.setAttribute('y2', end.y);
+        line.setAttribute('stroke', conn.color || '#58a6ff');
+        line.setAttribute('stroke-width', state.selected && state.selected.type === 'connection' && state.selected.id === conn.id ? '4' : '2.5');
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', midX);
+        label.setAttribute('y', midY - 10);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('class', 'connection-label');
+        label.textContent = conn.label || '';
+
+        g.appendChild(hit);
+        g.appendChild(line);
+        g.appendChild(label);
+        drawCardinalityMarker(g, start, angle + Math.PI, conn.startCard || '1', conn.color || '#58a6ff');
+        drawCardinalityMarker(g, end, angle, conn.endCard || '*', conn.color || '#58a6ff');
+        ui.svg.appendChild(g);
+      });
+
+      if (tempLine) ui.svg.appendChild(tempLine);
+    }
+
+    function renderEntities() {
+      ui.entityLayer.innerHTML = '';
+      state.entities.forEach(entity => {
+        const el = document.createElement('div');
+        el.className = 'entity' + (state.selected && state.selected.type === 'entity' && state.selected.id === entity.id ? ' selected' : '');
+        el.style.left = `${entity.x}px`;
+        el.style.top = `${entity.y}px`;
+        el.style.width = `${entity.w}px`;
+        el.style.height = `${entity.h}px`;
+        el.dataset.id = entity.id;
+
+        const attrsHtml = entity.attributes && entity.attributes.length
+          ? entity.attributes.map(attr => `
+            <div class="attr-row">
+              <div class="attr-icons">
+                ${(attr.flags || []).includes('pk') ? '<span class="pill pk">PK</span>' : ''}
+                ${(attr.flags || []).includes('fk') ? '<span class="pill fk">FK</span>' : ''}
+                ${(attr.flags || []).includes('nn') ? '<span class="pill nn">NN</span>' : ''}
+              </div>
+              <div class="attr-name">${escapeHtml(attr.name)}</div>
+              <div class="attr-type">${escapeHtml(attr.type)}</div>
+            </div>
+          `).join('')
+          : '<div class="empty-state">No attributes yet</div>';
+
+        el.innerHTML = `
+          <div class="entity-header" style="background: linear-gradient(180deg, ${hexToRgba(entity.color, 0.22)}, ${hexToRgba(entity.color, 0.08)});">
+            <div class="entity-title">${escapeHtml(entity.name)}</div>
+            <div class="badge">${escapeHtml(entity.badge)}</div>
+          </div>
+          <div class="attrs">${attrsHtml}</div>
+          <div class="resizer"></div>
+        `;
+
+        el.addEventListener('mousedown', e => onEntityMouseDown(e, entity));
+        el.querySelector('.resizer').addEventListener('mousedown', e => onResizeMouseDown(e, entity));
+        el.addEventListener('dblclick', e => {
+          e.stopPropagation();
+          state.selected = { type: 'entity', id: entity.id };
+          render();
+          ui.entityName.focus();
+          ui.entityName.select();
+        });
+
+        ui.entityLayer.appendChild(el);
+      });
+    }
+
+    function applyCamera() {
+      ui.camera.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+      ui.zoomText.textContent = `${Math.round(state.zoom * 100)}%`;
+    }
+
+    function render() {
+      applyCamera();
+      renderConnections();
+      renderEntities();
+      updatePanel();
+      saveLocal();
+    }
+
+    function onEntityMouseDown(e, entity) {
+      e.stopPropagation();
+      if (e.target.closest('.resizer')) return;
+      if (state.tool === 'connect') {
+        startConnection(entity);
+        return;
+      }
+
+      state.selected = { type: 'entity', id: entity.id };
+      const start = screenToWorld(e.clientX, e.clientY);
+      dragState = {
+        entityId: entity.id,
+        startX: entity.x,
+        startY: entity.y,
+        mouseX: start.x,
+        mouseY: start.y,
+        pushed: false,
+      };
+      render();
+    }
+
+    function onResizeMouseDown(e, entity) {
+      e.stopPropagation();
+      state.selected = { type: 'entity', id: entity.id };
+      const start = screenToWorld(e.clientX, e.clientY);
+      dragState = {
+        resize: true,
+        entityId: entity.id,
+        startW: entity.w,
+        startH: entity.h,
+        mouseX: start.x,
+        mouseY: start.y,
+        pushed: false,
+      };
+      render();
+    }
+
+    function startConnection(entity) {
+      state.selected = { type: 'entity', id: entity.id };
+      const c = entityCenter(entity);
+      connectState = { fromId: entity.id };
+      tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      tempLine.setAttribute('x1', c.x);
+      tempLine.setAttribute('y1', c.y);
+      tempLine.setAttribute('x2', c.x);
+      tempLine.setAttribute('y2', c.y);
+      tempLine.setAttribute('stroke', document.getElementById('themeColor').value);
+      tempLine.setAttribute('stroke-width', '2.5');
+      tempLine.setAttribute('stroke-dasharray', '6 5');
+      render();
+    }
+
+    function handleMouseMove(e) {
+      const world = screenToWorld(e.clientX, e.clientY);
+
+      if (panState) {
+        state.panX = panState.startPanX + (e.clientX - panState.startClientX);
+        state.panY = panState.startPanY + (e.clientY - panState.startClientY);
+        applyCamera();
+        return;
+      }
+
+      if (dragState) {
+        const entity = state.entities.find(en => en.id === dragState.entityId);
+        if (!entity) return;
+        if (!dragState.pushed) {
+          pushHistory();
+          dragState.pushed = true;
+        }
+
+        if (dragState.resize) {
+          entity.w = Math.max(190, dragState.startW + (world.x - dragState.mouseX));
+          entity.h = Math.max(110, dragState.startH + (world.y - dragState.mouseY));
+        } else {
+          entity.x = dragState.startX + (world.x - dragState.mouseX);
+          entity.y = dragState.startY + (world.y - dragState.mouseY);
+        }
+        render();
+        return;
+      }
+
+      if (connectState && tempLine) {
+        tempLine.setAttribute('x2', world.x);
+        tempLine.setAttribute('y2', world.y);
+      }
+    }
+
+    function handleMouseUp(e) {
+      if (dragState) {
+        dragState = null;
+        showToast('Updated');
+      }
+      if (panState) panState = null;
+
+      if (connectState) {
+        const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('.entity');
+        const targetId = targetEl?.dataset.id || null;
+        const sourceId = connectState.fromId;
+        connectState = null;
+        tempLine = null;
+        render();
+        if (targetId && targetId !== sourceId) addConnection(sourceId, targetId);
+      }
+    }
+
+    function fitToScreen() {
+      if (!state.entities.length) {
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        render();
+        return;
+      }
+
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      state.entities.forEach(e => {
+        minX = Math.min(minX, e.x);
+        minY = Math.min(minY, e.y);
+        maxX = Math.max(maxX, e.x + e.w);
+        maxY = Math.max(maxY, e.y + e.h);
+      });
+
+      const boundsW = maxX - minX;
+      const boundsH = maxY - minY;
+      const padding = 80;
+      const sidePanelWidth = 360;
+      const viewW = window.innerWidth - sidePanelWidth;
+      const viewH = window.innerHeight;
+      const scaleX = (viewW - padding * 2) / Math.max(boundsW, 1);
+      const scaleY = (viewH - padding * 2) / Math.max(boundsH, 1);
+      state.zoom = Math.max(0.2, Math.min(1.4, Math.min(scaleX, scaleY)));
+      state.panX = (viewW - boundsW * state.zoom) / 2 - minX * state.zoom;
+      state.panY = (viewH - boundsH * state.zoom) / 2 - minY * state.zoom;
+      render();
+      showToast('Fit to screen');
+    }
+
+    function centerCanvas() {
+      state.panX = 100;
+      state.panY = 80;
+      render();
+      showToast('Centered');
+    }
+
+    function zoomBy(factor, anchorClientX = window.innerWidth / 2, anchorClientY = window.innerHeight / 2) {
+      const oldZoom = state.zoom;
+      const nextZoom = Math.max(0.2, Math.min(2.5, oldZoom * factor));
+      if (nextZoom === oldZoom) return;
+      const rect = ui.workspace.getBoundingClientRect();
+      const mx = anchorClientX - rect.left;
+      const my = anchorClientY - rect.top;
+      const wx = (mx - state.panX) / oldZoom;
+      const wy = (my - state.panY) / oldZoom;
+      state.zoom = nextZoom;
+      state.panX = mx - wx * nextZoom;
+      state.panY = my - wy * nextZoom;
+      render();
+    }
+
+    function exportJSON() {
+      const payload = {
+        app: 'ER Diagram Maker',
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        entities: state.entities,
+        connections: state.connections,
+        viewport: {
+          zoom: state.zoom,
+          panX: state.panX,
+          panY: state.panY,
+        },
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'er-diagram.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('JSON exported');
+    }
+
+    async function copyJSON() {
+      const payload = {
+        app: 'ER Diagram Maker',
+        version: 2,
+        entities: state.entities,
+        connections: state.connections,
+      };
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+        showToast('JSON copied');
+      } catch {
+        showToast('Clipboard blocked');
+      }
+    }
+
+    function sanitizeImportedEntity(entity, idx) {
+      return {
+        id: entity?.id || `ent_import_${idx}`,
+        name: entity?.name || `entity_${idx + 1}`,
+        badge: entity?.badge || 'table',
+        x: Number.isFinite(entity?.x) ? entity.x : 120,
+        y: Number.isFinite(entity?.y) ? entity.y : 120,
+        w: Math.max(190, Number.isFinite(entity?.w) ? entity.w : 260),
+        h: Math.max(110, Number.isFinite(entity?.h) ? entity.h : 150),
+        color: entity?.color || '#6965db',
+        attributes: Array.isArray(entity?.attributes)
+          ? entity.attributes.map(attr => ({
+              name: attr?.name || 'column',
+              type: attr?.type || 'text',
+              flags: Array.isArray(attr?.flags) ? attr.flags : [],
+            }))
+          : defaultAttributes(),
+      };
+    }
+
+    function sanitizeImportedConnection(conn, idx, validIds) {
+      if (!conn || !conn.from || !conn.to) return null;
+      if (!validIds.has(conn.from) || !validIds.has(conn.to)) return null;
+      return {
+        id: conn.id || `rel_import_${idx}`,
+        from: conn.from,
+        to: conn.to,
+        label: conn.label || 'relates to',
+        startCard: conn.startCard || '1',
+        endCard: conn.endCard || '*',
+        color: conn.color || '#58a6ff',
+      };
+    }
+
+    function autoLayoutEntities() {
+      if (!state.entities.length) return;
+
+      const groups = new Map();
+      const order = [];
+
+      state.entities.forEach(entity => {
+        const schemaAttr = (entity.attributes || []).find(a => a.name === 'schema');
+        const pipelineAttr = (entity.attributes || []).find(a => a.name === 'pipeline');
+        const statusAttr = (entity.attributes || []).find(a => a.name === 'status');
+        const key = (schemaAttr && schemaAttr.type) || (pipelineAttr && pipelineAttr.type) || (statusAttr && statusAttr.type) || entity.badge || 'default';
+        if (!groups.has(key)) {
+          groups.set(key, []);
+          order.push(key);
+        }
+        groups.get(key).push(entity);
+      });
+
+      const startX = 120;
+      const startY = 120;
+      const laneGapY = 560;
+      const cardGapX = 380;
+      const cardGapY = 260;
+      const hubOffsetX = 0;
+      const itemOffsetX = 340;
+      const availableWidth = Math.max(900, (window.innerWidth || 1600) - 440);
+      const maxColsDynamic = Math.max(2, Math.floor((availableWidth - itemOffsetX) / cardGapX));
+
+      order.forEach((groupKey, groupIndex) => {
+        const items = groups.get(groupKey) || [];
+        const hubs = [];
+        const regular = [];
+        items.forEach(entity => {
+          if (entity.badge === 'view' || entity.badge === 'lookup') hubs.push(entity);
+          else regular.push(entity);
+        });
+
+        hubs.sort((a, b) => a.name.localeCompare(b.name));
+        regular.sort((a, b) => a.name.localeCompare(b.name));
+
+        const laneTop = startY + groupIndex * laneGapY;
+
+        hubs.forEach((entity, idx) => {
+          entity.x = startX + hubOffsetX + idx * (entity.w + 50);
+          entity.y = laneTop;
+        });
+
+        const cols = Math.min(maxColsDynamic, Math.max(3, Math.ceil(Math.sqrt(Math.max(regular.length, 1)))));
+        regular.forEach((entity, idx) => {
+          const col = idx % cols;
+          const row = Math.floor(idx / cols);
+          entity.x = startX + itemOffsetX + col * cardGapX;
+          entity.y = laneTop + row * cardGapY;
+        });
+      });
+
+      const pad = 28;
+      for (let iter = 0; iter < 5; iter++) {
+        for (let i = 0; i < state.entities.length; i++) {
+          for (let j = i + 1; j < state.entities.length; j++) {
+            const a = state.entities[i];
+            const b = state.entities[j];
+            const overlapX = Math.max(0, Math.min(a.x + a.w + pad, b.x + b.w + pad) - Math.max(a.x - pad, b.x - pad));
+            const overlapY = Math.max(0, Math.min(a.y + a.h + pad, b.y + b.h + pad) - Math.max(a.y - pad, b.y - pad));
+            if (overlapX > 0 && overlapY > 0) {
+              const pushX = overlapX * 0.55;
+              const pushY = overlapY * 0.55;
+              b.x += pushX;
+              b.y += pushY;
+            }
+          }
+        }
+      }
+
+      state.panX = 40;
+      state.panY = 40;
+    }
+
+    function importJSONFromText(text) {
+      const parsed = JSON.parse(text);
+      if (!parsed || !Array.isArray(parsed.entities)) {
+        throw new Error('Invalid ER JSON: missing entities array');
+      }
+
+      pushHistory();
+      state.entities = parsed.entities.map((entity, idx) => sanitizeImportedEntity(entity, idx));
+      const validIds = new Set(state.entities.map(e => e.id));
+      state.connections = Array.isArray(parsed.connections)
+        ? parsed.connections.map((conn, idx) => sanitizeImportedConnection(conn, idx, validIds)).filter(Boolean)
+        : [];
+
+      state.zoom = 1;
+      state.panX = 40;
+      state.panY = 40;
+      state.selected = null;
+      autoLayoutEntities();
+      render();
+      fitToScreen();
+      showToast('JSON imported and arranged');
+    }
+
+    function tidyCurrentLayout() {
+      pushHistory();
+      autoLayoutEntities();
+      render();
+      fitToScreen();
+      showToast('Layout tidied');
+    }
+
+    function addSampleSchema() {
+      pushHistory();
+      state.entities = [
+        {
+          id: uid('ent'), name: 'users', badge: 'table', x: 80, y: 110, w: 270, h: 170, color: '#6965db',
+          attributes: [
+            { name: 'id', type: 'uuid', flags: ['pk', 'nn'] },
+            { name: 'name', type: 'varchar(120)', flags: ['nn'] },
+            { name: 'email', type: 'varchar(255)', flags: ['nn'] },
+            { name: 'created_at', type: 'timestamp', flags: [] },
+          ]
+        },
+        {
+          id: uid('ent'), name: 'orders', badge: 'table', x: 470, y: 120, w: 280, h: 190, color: '#58a6ff',
+          attributes: [
+            { name: 'id', type: 'bigint', flags: ['pk', 'nn'] },
+            { name: 'user_id', type: 'uuid', flags: ['fk', 'nn'] },
+            { name: 'status', type: 'varchar(30)', flags: ['nn'] },
+            { name: 'total_amount', type: 'decimal(10,2)', flags: ['nn'] },
+            { name: 'created_at', type: 'timestamp', flags: [] },
+          ]
+        },
+        {
+          id: uid('ent'), name: 'order_items', badge: 'table', x: 890, y: 150, w: 290, h: 200, color: '#3fb950',
+          attributes: [
+            { name: 'id', type: 'bigint', flags: ['pk', 'nn'] },
+            { name: 'order_id', type: 'bigint', flags: ['fk', 'nn'] },
+            { name: 'product_id', type: 'bigint', flags: ['fk', 'nn'] },
+            { name: 'quantity', type: 'int', flags: ['nn'] },
+            { name: 'unit_price', type: 'decimal(10,2)', flags: ['nn'] },
+          ]
+        },
+        {
+          id: uid('ent'), name: 'products', badge: 'lookup', x: 880, y: 430, w: 280, h: 170, color: '#d29922',
+          attributes: [
+            { name: 'id', type: 'bigint', flags: ['pk', 'nn'] },
+            { name: 'sku', type: 'varchar(60)', flags: ['nn'] },
+            { name: 'name', type: 'varchar(180)', flags: ['nn'] },
+            { name: 'price', type: 'decimal(10,2)', flags: ['nn'] },
+          ]
+        }
+      ];
+
+      state.connections = [
+        { id: uid('rel'), from: state.entities[0].id, to: state.entities[1].id, label: 'places', startCard: '1', endCard: '*', color: '#8d8aff' },
+        { id: uid('rel'), from: state.entities[1].id, to: state.entities[2].id, label: 'contains', startCard: '1', endCard: '*', color: '#58a6ff' },
+        { id: uid('rel'), from: state.entities[3].id, to: state.entities[2].id, label: 'referenced by', startCard: '1', endCard: '*', color: '#3fb950' },
+      ];
+      state.selected = null;
+      autoLayoutEntities();
+      render();
+      fitToScreen();
+      showToast('Sample schema added');
+    }
+
+    function handleKeydown(e) {
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      const typing = tag === 'input' || tag === 'textarea' || tag === 'select';
+      if (e.code === 'Space' && !typing) document.body.style.cursor = 'grab';
+      if (typing) return;
+      const key = e.key.toLowerCase();
+      if (key === 'v') setTool('select');
+      if (key === 'e') setTool('entity');
+      if (key === 'l') setTool('connect');
+      if (key === 't') tidyCurrentLayout();
+      if ((key === 'delete' || key === 'backspace') && state.selected) deleteSelected();
+      if (e.ctrlKey && key === 'z') { e.preventDefault(); undo(); }
+      if (e.ctrlKey && key === 'y') { e.preventDefault(); redo(); }
+      if (key === 'c') centerCanvas();
+    }
+
+    function handleKeyup(e) {
+      if (e.code === 'Space') document.body.style.cursor = '';
+    }
+
+    function wirePanel() {
+      ui.entityName.addEventListener('input', () => {
+        const entity = getSelectedEntity();
+        if (!entity) return;
+        entity.name = ui.entityName.value || 'entity';
+        render();
+      });
+      ui.entityType.addEventListener('change', () => {
+        const entity = getSelectedEntity();
+        if (!entity) return;
+        entity.badge = ui.entityType.value;
+        render();
+      });
+      ui.entityColor.addEventListener('input', () => {
+        const entity = getSelectedEntity();
+        if (!entity) return;
+        entity.color = ui.entityColor.value;
+        render();
+      });
+      ui.entityAttrs.addEventListener('input', () => {
+        const entity = getSelectedEntity();
+        if (!entity) return;
+        entity.attributes = parseAttributes(ui.entityAttrs.value);
+        entity.h = Math.max(110, 58 + Math.max(entity.attributes.length, 1) * 28);
+        render();
+      });
+
+      ui.connName.addEventListener('input', () => {
+        const conn = getSelectedConnection();
+        if (!conn) return;
+        conn.label = ui.connName.value;
+        render();
+      });
+      ui.connStart.addEventListener('change', () => {
+        const conn = getSelectedConnection();
+        if (!conn) return;
+        conn.startCard = ui.connStart.value;
+        render();
+      });
+      ui.connEnd.addEventListener('change', () => {
+        const conn = getSelectedConnection();
+        if (!conn) return;
+        conn.endCard = ui.connEnd.value;
+        render();
+      });
+      ui.connColor.addEventListener('input', () => {
+        const conn = getSelectedConnection();
+        if (!conn) return;
+        conn.color = ui.connColor.value;
+        render();
+      });
+    }
+
+    function init() {
+      ui.workspace = document.getElementById('workspace');
+      ui.camera = document.getElementById('camera');
+      ui.svg = document.getElementById('svg-layer');
+      ui.entityLayer = document.getElementById('entity-layer');
+      ui.zoomText = document.getElementById('zoomText');
+      ui.toast = document.getElementById('toast');
+      ui.nothingSelected = document.getElementById('nothingSelected');
+      ui.entityEditor = document.getElementById('entityEditor');
+      ui.connEditor = document.getElementById('connEditor');
+      ui.entityName = document.getElementById('entityName');
+      ui.entityType = document.getElementById('entityType');
+      ui.entityColor = document.getElementById('entityColor');
+      ui.entityAttrs = document.getElementById('entityAttrs');
+      ui.connName = document.getElementById('connName');
+      ui.connStart = document.getElementById('connStart');
+      ui.connEnd = document.getElementById('connEnd');
+      ui.connColor = document.getElementById('connColor');
+
+      wirePanel();
+
+      document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+        btn.addEventListener('click', () => setTool(btn.dataset.tool));
+      });
+
+      document.getElementById('fitBtn').addEventListener('click', fitToScreen);
+      document.getElementById('centerBtn').addEventListener('click', centerCanvas);
+      document.getElementById('tidyBtn').addEventListener('click', tidyCurrentLayout);
+      document.getElementById('undoBtn').addEventListener('click', undo);
+      document.getElementById('redoBtn').addEventListener('click', redo);
+      document.getElementById('deleteBtn').addEventListener('click', deleteSelected);
+      document.getElementById('duplicateBtn').addEventListener('click', duplicateSelected);
+      document.getElementById('clearBtn').addEventListener('click', clearAll);
+      document.getElementById('addSampleBtn').addEventListener('click', addSampleSchema);
+      document.getElementById('exportJsonBtn').addEventListener('click', exportJSON);
+      document.getElementById('copyJsonBtn').addEventListener('click', copyJSON);
+      document.getElementById('importJsonBtn').addEventListener('click', () => {
+        const fileInput = document.getElementById('importFile');
+        if (fileInput) fileInput.click();
+      });
+      document.getElementById('pasteJsonBtn').addEventListener('click', () => {
+        const pasted = window.prompt('Paste ER JSON here:');
+        if (!pasted) return;
+        try {
+          importJSONFromText(pasted);
+        } catch (err) {
+          console.error(err);
+          showToast('Invalid pasted JSON');
+        }
+      });
+      document.getElementById('importFile').addEventListener('change', async e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          importJSONFromText(text);
+        } catch (err) {
+          console.error(err);
+          showToast('Invalid JSON file');
+        }
+        e.target.value = '';
+      });
+
+      document.getElementById('zoomInBtn').addEventListener('click', () => zoomBy(1.12));
+      document.getElementById('zoomOutBtn').addEventListener('click', () => zoomBy(1 / 1.12));
+
+      ui.workspace.addEventListener('mousedown', e => {
+        const clickedEntity = e.target.closest('.entity');
+        const clickedConn = e.target.closest('[data-conn-id]');
+        const spaceDown = window.__spaceHeld === true;
+
+        if (!clickedEntity && !clickedConn) {
+          state.selected = null;
+          render();
+        }
+
+        if (e.button === 1 || spaceDown) {
+          panState = {
+            startClientX: e.clientX,
+            startClientY: e.clientY,
+            startPanX: state.panX,
+            startPanY: state.panY,
+          };
+          return;
+        }
+
+        if (!clickedEntity && state.tool === 'entity') {
+          const pt = screenToWorld(e.clientX, e.clientY);
+          addEntity(pt.x - 110, pt.y - 50);
+        }
+      });
+
+      ui.workspace.addEventListener('wheel', e => {
+        if (!e.ctrlKey) return;
+        e.preventDefault();
+        zoomBy(e.deltaY < 0 ? 1.08 : 1 / 1.08, e.clientX, e.clientY);
+      }, { passive: false });
+
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('keydown', e => {
+        if (e.code === 'Space') window.__spaceHeld = true;
+        handleKeydown(e);
+      });
+      window.addEventListener('keyup', e => {
+        if (e.code === 'Space') window.__spaceHeld = false;
+        handleKeyup(e);
+      });
+      window.addEventListener('resize', render);
+
+      loadLocal();
+      if (!state.entities.length) {
+        addSampleSchema();
+      } else {
+        render();
+      }
+    }
+
+    init();
+  </script>
+
+
+</body></html>

@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intermittent Fasting Calculator</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #11182b;
+      --panel-2: #18213a;
+      --text: #eef2ff;
+      --muted: #a8b3cf;
+      --accent: #8b5cf6;
+      --accent-2: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --track: #26314f;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --slate: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(139, 92, 246, 0.18), transparent 35%),
+        linear-gradient(180deg, #09101d 0%, #0b1020 100%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1020px;
+      background: rgba(17, 24, 43, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .header {
+      padding: 28px 28px 14px;
+      background: linear-gradient(180deg, rgba(139, 92, 246, 0.12), rgba(0, 0, 0, 0));
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 20px;
+      padding: 20px 28px 28px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    input,
+    select,
+    button {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(139, 92, 246, 0.65);
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+    }
+
+    .duration-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-top: 14px;
+    }
+
+    .hint {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .planner,
+    .attempt-panel {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .planner-title,
+    .attempt-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .planner-title strong,
+    .attempt-title strong {
+      font-size: 0.98rem;
+    }
+
+    .planner-title span,
+    .attempt-title span {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .preset-btn {
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .preset-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .preset-btn.active {
+      border-color: rgba(139, 92, 246, 0.65);
+      background: rgba(139, 92, 246, 0.16);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.10);
+    }
+
+    .preset-btn strong {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .preset-btn span {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .attempt-panel {
+      border-color: rgba(245, 158, 11, 0.28);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.10), rgba(255, 255, 255, 0.02));
+    }
+
+    .attempt-status {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .attempt-box {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .attempt-box .k {
+      display: block;
+      color: var(--muted);
+      font-size: 0.83rem;
+      margin-bottom: 6px;
+    }
+
+    .attempt-box .v {
+      font-size: 0.96rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .attempt-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.2s ease;
+      font-weight: 600;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      border: none;
+    }
+
+    .secondary {
+      background: transparent;
+    }
+
+    .warning-btn {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(239, 68, 68, 0.22));
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .result-main {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: 100%;
+    }
+
+    .big-time {
+      font-size: clamp(2.1rem, 5vw, 3.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0;
+      line-height: 0.95;
+    }
+
+    .small-line {
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .progress-wrap {
+      margin-top: 6px;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      height: 16px;
+      border-radius: 999px;
+      background: var(--track);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--accent), var(--green));
+      transition: width 0.45s ease;
+    }
+
+    .milestones {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      flex-wrap: wrap;
+    }
+
+    .milestones span {
+      transition: color 0.2s ease, opacity 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    .clock-area {
+      display: grid;
+      place-items: center;
+      margin-top: 6px;
+    }
+
+    svg {
+      overflow: visible;
+    }
+
+    .clock-center-text {
+      text-anchor: middle;
+      dominant-baseline: middle;
+      fill: var(--text);
+      font-weight: 700;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .stat .k {
+      display: block;
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 6px;
+    }
+
+    .stat .v {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      padding: 0 28px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      padding: 10px 16px;
+      font-size: 0.95rem;
+    }
+
+    .tab-btn.active {
+      background: rgba(139, 92, 246, 0.16);
+      border-color: rgba(139, 92, 246, 0.65);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.10);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .compact-attempt {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid rgba(245, 158, 11, 0.22);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), rgba(255, 255, 255, 0.02));
+    }
+
+    .compact-attempt-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .compact-attempt small {
+      color: var(--muted);
+      display: block;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .big-reset {
+      width: 100%;
+      padding: 15px 18px;
+      font-size: 1.04rem;
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      border: none;
+    }
+
+    .history-wrap {
+      padding: 20px 28px 28px;
+    }
+
+    .history-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .history-toolbar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .history-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      vertical-align: middle;
+    }
+
+    .history-table th {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .history-table td input,
+    .history-table td select {
+      width: 100%;
+      min-width: 105px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+    }
+
+    .row-btn {
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+
+
+    .note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 780px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid,
+      .summary-grid,
+      .duration-row,
+      .preset-grid,
+      .attempt-status {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>Intermittent Fasting Calculator</h1>
+      <p class="subtitle">Track your fast live, use planner presets, keep an optional 36-hour mode, and store a simple fasting history 💜</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" type="button" data-tab="tracker">Tracker</button>
+      <button class="tab-btn" type="button" data-tab="history">History</button>
+    </div>
+
+    <div class="tab-panel active" id="trackerPanel">
+      <div class="content">
+      <div class="card result-main">
+        <div>
+          <p class="small-line">Total fasting time</p>
+          <h2 class="big-time" id="resultText">16h<br>0m</h2>
+          <p class="small-line" id="detailText">From 20:00 to 12:00 on the next day.</p>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-labels">
+            <span id="progressTitle">Phase progress</span>
+            <span id="progressText">Early ketosis • 0.0% through this phase</span>
+          </div>
+          <div class="progress" aria-hidden="true">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="milestones" id="phaseMarkers">
+            <span data-phase-marker="0">0h Feeding</span>
+            <span data-phase-marker="2">2h Insulin peak</span>
+            <span data-phase-marker="4">4h Digestion</span>
+            <span data-phase-marker="6">6h Early fasting</span>
+            <span data-phase-marker="8">8h Glycogen start</span>
+            <span data-phase-marker="10">10h Glycogen depletion</span>
+            <span data-phase-marker="12">12h Low glycogen</span>
+            <span data-phase-marker="14">14h Fat burning</span>
+            <span data-phase-marker="16">16h Early ketosis</span>
+            <span data-phase-marker="18">18h Ketosis rising</span>
+            <span data-phase-marker="20">20h Deep fat burn</span>
+            <span data-phase-marker="24">24h Strong ketosis</span>
+            <span data-phase-marker="30">30h Autophagy signal</span>
+            <span data-phase-marker="36">36h Deep fast</span>
+            <span data-phase-marker="48">48h Extended fast</span>
+          </div>
+        </div>
+
+        <div class="clock-area">
+          <svg id="clockSvg" width="280" height="280" viewBox="0 0 280 280" role="img"
+            aria-label="Visual fasting clock">
+            <circle cx="140" cy="140" r="98" fill="none" stroke="#26314f" stroke-width="18"></circle>
+            <circle id="clockLoop1Full" cx="140" cy="140" r="98" fill="none" stroke="#8b5cf6" stroke-width="18" style="display:none;"></circle>
+            <circle id="clockLoop2Full" cx="140" cy="140" r="84" fill="none" stroke="#3b82f6" stroke-width="12" style="display:none;"></circle>
+            <circle id="clockLoop3Full" cx="140" cy="140" r="70" fill="none" stroke="#22c55e" stroke-width="6" style="display:none;"></circle>
+            <path id="clockArcPath1" d="" fill="none" stroke="#8b5cf6" stroke-width="18" stroke-linecap="round"></path>
+            <path id="clockArcPath2" d="" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round"></path>
+            <path id="clockArcPath3" d="" fill="none" stroke="#22c55e" stroke-width="6" stroke-linecap="round"></path>
+            <circle cx="140" cy="140" r="62" fill="#0f172a" stroke="rgba(255,255,255,0.05)"></circle>
+            <text x="140" y="122" class="clock-center-text" font-size="22" id="clockCenterMain">16h</text>
+            <text x="140" y="146" class="clock-center-text" font-size="12" fill="#a8b3cf" id="clockCenterSub">0m
+              elapsed</text>
+            <text x="140" y="26" text-anchor="middle" fill="#a8b3cf" font-size="12">12</text>
+            <text x="252" y="144" text-anchor="middle" fill="#6b7594" font-size="12">3</text>
+            <text x="140" y="268" text-anchor="middle" fill="#6b7594" font-size="12">6</text>
+            <text x="28" y="144" text-anchor="middle" fill="#6b7594" font-size="12">9</text>
+            <line id="startHand" x1="140" y1="140" x2="140" y2="52" stroke="#22c55e" stroke-width="4"
+              stroke-linecap="round"></line>
+            <line id="endHand" x1="140" y1="140" x2="140" y2="52" stroke="#f59e0b" stroke-width="4"
+              stroke-linecap="round"></line>
+            <circle cx="140" cy="140" r="6" fill="#eef2ff"></circle>
+          </svg>
+          <div class="legend">
+            <span><span class="dot" style="background:#22c55e"></span>Start</span>
+            <span><span class="dot" style="background:#f59e0b"></span>End</span>
+            <span><span class="dot" style="background:#8b5cf6"></span>12-hour clock view</span>
+          </div>
+        </div>
+
+        <div class="card" style="padding:14px 16px; margin-top: 10px; background: rgba(139, 92, 246, 0.08);">
+          <div
+            style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom: 10px;">
+            <div>
+              <div style="color: var(--muted); font-size: 0.86rem; margin-bottom: 4px;">Session status</div>
+              <div id="sessionStatus" style="font-size: 1rem; font-weight: 700;">Live fast running</div>
+            </div>
+            <div id="sessionDetail"
+              style="color: var(--muted); font-size: 0.92rem; max-width: 420px; line-height: 1.45;">You can start a live
+              fast and it will keep running after refresh.</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div>
+              <div style="color: var(--muted); font-size: 0.86rem; margin-bottom: 4px;">Current phase</div>
+              <div id="phaseTitle" style="font-size: 1.15rem; font-weight: 700;">Early ketosis</div>
+            </div>
+            <div id="phaseDetail" style="color: var(--muted); font-size: 0.92rem; max-width: 420px; line-height: 1.45;">
+              Fat oxidation is rising and ketone production may begin increasing.</div>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="stat">
+            <span class="k">Hours</span>
+            <span class="v" id="statHours">16</span>
+          </div>
+          <div class="stat">
+            <span class="k">Minutes</span>
+            <span class="v" id="statMinutes">0</span>
+          </div>
+          <div class="stat">
+            <span class="k">Progress</span>
+            <span class="v" id="statDays">0.67</span>
+          </div>
+        </div>
+
+        <p class="note">Metabolic phases are simplified wellness milestones, not medical cutoffs. The 36h attempt mode
+          is a planning aid with reminders, not a medical recommendation.</p>
+      </div>
+
+      <div class="card">
+        <div class="form-grid">
+          <div class="field">
+            <label for="startTime">Start time</label>
+            <input type="time" id="startTime" value="20:00" />
+          </div>
+
+          <div class="field">
+            <label for="endTime">End time</label>
+            <input type="time" id="endTime" value="12:00" />
+          </div>
+        </div>
+
+        <div class="duration-row">
+          <div class="field">
+            <label for="extraHours">Extra duration beyond the end time</label>
+            <input type="number" id="extraHours" min="0" step="0.25" value="0" placeholder="0" />
+          </div>
+
+          <div class="field">
+            <label for="viewMode">Progress mode</label>
+            <select id="viewMode">
+              <option value="phases">Metabolic phases</option>
+              <option value="planner">Planner preset</option>
+              <option value="attempt36">36h attempt</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="hint">Set your times manually, choose a fasting planner preset, or start a live count from the start
+          time you entered. The clock now behaves like a regular clock: 12 hours per revolution.</p>
+
+        <div class="planner">
+          <div class="planner-title">
+            <strong>Fasting planner</strong>
+            <span id="plannerSummary">Selected: 16+8</span>
+          </div>
+          <div class="preset-grid" id="presetGrid">
+            <button class="preset-btn" type="button" data-fast="12" data-feed="12">
+              <strong>12+12</strong>
+              <span>Balanced beginner split</span>
+            </button>
+            <button class="preset-btn active" type="button" data-fast="16" data-feed="8">
+              <strong>16+8</strong>
+              <span>Most common IF routine</span>
+            </button>
+            <button class="preset-btn" type="button" data-fast="18" data-feed="6">
+              <strong>18+6</strong>
+              <span>Longer fasting window</span>
+            </button>
+            <button class="preset-btn" type="button" data-fast="20" data-feed="4">
+              <strong>20+4</strong>
+              <span>Tighter eating window</span>
+            </button>
+            <button class="preset-btn" type="button" data-fast="24" data-feed="0">
+              <strong>24h</strong>
+              <span>One meal a day style</span>
+            </button>
+            <button class="preset-btn" type="button" data-fast="36" data-feed="0">
+              <strong>36h</strong>
+              <span>Extended fast plan</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="compact-attempt">
+          <div class="compact-attempt-row">
+            <div>
+              <strong>36h attempt mode</strong>
+              <small id="attemptSummary">A cautious one-off challenge, not a daily target.</small>
+              <span id="hydrationText" style="display:none;"></span><span id="refeedText" style="display:none;"></span>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="warning-btn" type="button" id="attempt36Btn">36h mode</button>
+              <button class="secondary" type="button" id="cancelAttemptBtn">Exit</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="big-reset" id="resetBtn" type="button">Reset / start now</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="tab-panel" id="historyPanel">
+      <div class="history-wrap">
+        <div class="card">
+          <div class="history-toolbar">
+            <div>
+              <h2 style="margin:0 0 4px; font-size:1.1rem;">Fasting history</h2>
+              <p>Reset / start now auto-saves the current fast here. You can edit or delete rows anytime, and everything is saved locally on your device.</p>
+            </div>
+            <div class="history-actions">
+              <button class="secondary" type="button" id="addHistoryRowBtn">Add row</button>
+              <button class="secondary" type="button" id="saveCurrentFastBtn">Save current fast</button>
+            </div>
+          </div>
+
+          <div class="history-table-wrap">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Hours</th>
+                  <th>Protocol</th>
+                  <th>Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const startInput = document.getElementById('startTime');
+    const endInput = document.getElementById('endTime');
+    const extraInput = document.getElementById('extraHours');
+    const viewModeInput = document.getElementById('viewMode');
+
+    const resultText = document.getElementById('resultText');
+    const detailText = document.getElementById('detailText');
+    const progressTitle = document.getElementById('progressTitle');
+    const progressText = document.getElementById('progressText');
+    const progressBar = document.getElementById('progressBar');
+    const phaseTitle = document.getElementById('phaseTitle');
+    const phaseDetail = document.getElementById('phaseDetail');
+    const sessionStatus = document.getElementById('sessionStatus');
+    const sessionDetail = document.getElementById('sessionDetail');
+    const plannerSummary = document.getElementById('plannerSummary');
+    const attemptSummary = document.getElementById('attemptSummary');
+    const hydrationText = document.getElementById('hydrationText');
+    const refeedText = document.getElementById('refeedText');
+    const statHours = document.getElementById('statHours');
+    const statMinutes = document.getElementById('statMinutes');
+    const statDays = document.getElementById('statDays');
+    const clockLoop1Full = document.getElementById('clockLoop1Full');
+    const clockLoop2Full = document.getElementById('clockLoop2Full');
+    const clockLoop3Full = document.getElementById('clockLoop3Full');
+    const clockArcPath1 = document.getElementById('clockArcPath1');
+    const clockArcPath2 = document.getElementById('clockArcPath2');
+    const clockArcPath3 = document.getElementById('clockArcPath3');
+    const clockCenterMain = document.getElementById('clockCenterMain');
+    const clockCenterSub = document.getElementById('clockCenterSub');
+    const startHand = document.getElementById('startHand');
+    const endHand = document.getElementById('endHand');
+        const resetBtn = document.getElementById('resetBtn');
+    const attempt36Btn = document.getElementById('attempt36Btn');
+    const cancelAttemptBtn = document.getElementById('cancelAttemptBtn');
+    const phaseMarkers = Array.from(document.querySelectorAll('[data-phase-marker]'));
+    const presetButtons = Array.from(document.querySelectorAll('.preset-btn'));
+    const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+    const trackerPanel = document.getElementById('trackerPanel');
+    const historyPanel = document.getElementById('historyPanel');
+    const historyTableBody = document.getElementById('historyTableBody');
+    const addHistoryRowBtn = document.getElementById('addHistoryRowBtn');
+    const saveCurrentFastBtn = document.getElementById('saveCurrentFastBtn');
+
+    const STORAGE_KEY = 'if_calculator_state_v5';
+    let liveTimer = null;
+
+    const PHASES = [
+      { limit: 2, name: 'Feeding / Post-meal', detail: 'Your body is still processing the meal and circulating easy fuel.' },
+      { limit: 4, name: 'Insulin peak', detail: 'Insulin is still relatively elevated while nutrients are being handled.' },
+      { limit: 6, name: 'Digestion', detail: 'Digestion is tapering off and the fed state is beginning to fade.' },
+      { limit: 8, name: 'Early fasting', detail: 'You are leaving the fed state and starting the real fasting transition.' },
+      { limit: 10, name: 'Glycogen usage begins', detail: 'Stored glycogen is becoming the main energy source.' },
+      { limit: 12, name: 'Glycogen depletion', detail: 'Glycogen use is increasing and your metabolic switch is moving along.' },
+      { limit: 14, name: 'Low glycogen', detail: 'Glycogen is running lower and the body starts leaning harder on fat.' },
+      { limit: 16, name: 'Fat burning begins', detail: 'Fat oxidation is becoming more noticeable as glycogen continues to fall.' },
+      { limit: 18, name: 'Early ketosis', detail: 'Ketone production may start rising and fasting adaptation becomes more obvious.' },
+      { limit: 20, name: 'Ketosis rising', detail: 'Fat-derived fuel is becoming more established.' },
+      { limit: 24, name: 'Deep fat burn', detail: 'This is a strong fasting zone where fat use is dominant for many people.' },
+      { limit: 30, name: 'Strong ketosis', detail: 'Ketone production is more established and energy has shifted further away from glycogen.' },
+      { limit: 36, name: 'Autophagy signaling', detail: 'A prolonged fasting state where cellular cleanup signaling may increase.' },
+      { limit: 48, name: 'Deep fast', detail: 'This is advanced fasting territory and should be approached with more care.' },
+      { limit: Infinity, name: 'Extended fast', detail: 'A very long fasting window. Hydration, electrolytes, and self-monitoring matter even more here.' }
+    ];
+
+    const PRESETS = {
+      '12+12': { fast: 12, feed: 12, label: '12+12' },
+      '16+8': { fast: 16, feed: 8, label: '16+8' },
+      '18+6': { fast: 18, feed: 6, label: '18+6' },
+      '20+4': { fast: 20, feed: 4, label: '20+4' },
+      '24h': { fast: 24, feed: 0, label: '24h' },
+      '36h': { fast: 36, feed: 0, label: '36h' }
+    };
+
+    function timeToMinutes(value) {
+      const [hours, minutes] = value.split(':').map(Number);
+      return hours * 60 + minutes;
+    }
+
+    function formatDuration(totalMinutes) {
+      const totalHours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `${totalHours}h<br>${minutes}m`;
+    }
+
+    function formatDays(totalMinutes) {
+      return `${Math.round((totalMinutes / 1440) * 100)}%`;
+    }
+
+    function getPhaseMarkerColor(hours) {
+      if (hours >= 48) return 'var(--red)';
+      if (hours >= 36) return 'var(--amber)';
+      if (hours >= 24) return 'var(--green)';
+      if (hours >= 16) return 'var(--blue)';
+      if (hours >= 8) return 'var(--purple)';
+      return 'var(--slate)';
+    }
+
+    function polarToCartesian12h(cx, cy, radius, minutesOfDay) {
+      const minutesOn12h = minutesOfDay % 720;
+      const angle = (minutesOn12h / 720) * 360 - 90;
+      const radians = angle * Math.PI / 180;
+      return {
+        x: cx + Math.cos(radians) * radius,
+        y: cy + Math.sin(radians) * radius
+      };
+    }
+
+    function describeArc12h(cx, cy, radius, startMinutes, spanMinutes) {
+      const normalizedSpan = Math.max(Math.min(spanMinutes, 720), 1);
+      const endMinutes = startMinutes + normalizedSpan;
+      const start = polarToCartesian12h(cx, cy, radius, startMinutes);
+      const end = polarToCartesian12h(cx, cy, radius, endMinutes);
+      const largeArcFlag = normalizedSpan > 360 ? 1 : 0;
+      return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
+    }
+
+    function setHand(lineEl, minutesOfDay) {
+      const point = polarToCartesian12h(140, 140, 88, minutesOfDay);
+      lineEl.setAttribute('x1', '140');
+      lineEl.setAttribute('y1', '140');
+      lineEl.setAttribute('x2', point.x.toFixed(2));
+      lineEl.setAttribute('y2', point.y.toFixed(2));
+    }
+
+    function updateClockArc(startMinutes, endMinutes, totalMinutes) {
+      const loop1 = Math.min(totalMinutes, 720);
+      const loop2 = Math.min(Math.max(totalMinutes - 720, 0), 720);
+      const loop3 = Math.min(Math.max(totalMinutes - 1440, 0), 720);
+
+      clockLoop1Full.style.display = totalMinutes >= 720 ? 'block' : 'none';
+      clockLoop2Full.style.display = totalMinutes >= 1440 ? 'block' : 'none';
+      clockLoop3Full.style.display = totalMinutes >= 2160 ? 'block' : 'none';
+
+      clockArcPath1.setAttribute('d', totalMinutes > 0 && totalMinutes < 720
+        ? describeArc12h(140, 140, 98, startMinutes, loop1)
+        : '');
+      clockArcPath2.setAttribute('d', totalMinutes > 720 && totalMinutes < 1440
+        ? describeArc12h(140, 140, 84, startMinutes, loop2)
+        : '');
+      clockArcPath3.setAttribute('d', totalMinutes > 1440 && totalMinutes < 2160
+        ? describeArc12h(140, 140, 70, startMinutes, loop3)
+        : '');
+
+      clockCenterMain.innerHTML = `${Math.floor(totalMinutes / 60)}h`;
+      clockCenterSub.textContent = `${totalMinutes % 60}m elapsed`;
+    }
+
+    function getCurrentPhase(totalHours) {
+      let previousLimit = 0;
+      for (const phase of PHASES) {
+        if (totalHours < phase.limit) {
+          return { ...phase, start: previousLimit, end: phase.limit };
+        }
+        previousLimit = phase.limit;
+      }
+      return { ...PHASES[PHASES.length - 1], start: 36, end: Infinity };
+    }
+
+    function updatePhaseMarkers(totalHoursFloat) {
+      phaseMarkers.forEach(marker => {
+        const threshold = Number(marker.dataset.phaseMarker);
+        const active = totalHoursFloat >= threshold;
+        const color = getPhaseMarkerColor(threshold);
+        marker.style.color = active ? color : 'var(--muted)';
+        marker.style.fontWeight = active ? '700' : '500';
+        marker.style.opacity = active ? '1' : '0.65';
+        marker.style.textShadow = active ? '0 0 14px rgba(255,255,255,0.12)' : 'none';
+      });
+    }
+
+    function getStoredState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        console.warn('Could not parse saved state.', e);
+        return {};
+      }
+    }
+
+    function getLiveSession() {
+      return getStoredState().liveSession || null;
+    }
+
+    function saveState() {
+      const existing = getStoredState();
+      const state = {
+        ...existing,
+        startTime: startInput.value,
+        endTime: endInput.value,
+        extraHours: extraInput.value,
+        viewMode: viewModeInput.value,
+        selectedPreset: existing.selectedPreset || '16+8',
+        attemptMode: existing.attemptMode || false
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function setLiveSession(session) {
+      const existing = getStoredState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, liveSession: session }));
+    }
+
+    function clearLiveSession() {
+      const existing = getStoredState();
+      delete existing.liveSession;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+    }
+
+    function setSelectedPreset(label) {
+      const existing = getStoredState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, selectedPreset: label }));
+      applySelectedPresetVisual(label);
+    }
+
+    function getSelectedPresetLabel() {
+      return getStoredState().selectedPreset || '16+8';
+    }
+
+    function setAttemptMode(enabled) {
+      const existing = getStoredState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, attemptMode: enabled }));
+    }
+
+    function getAttemptMode() {
+      return Boolean(getStoredState().attemptMode);
+    }
+
+    function applySelectedPresetVisual(label) {
+      presetButtons.forEach(btn => {
+        const btnLabel = Number(btn.dataset.feed) > 0 ? `${btn.dataset.fast}+${btn.dataset.feed}` : `${btn.dataset.fast}h`;
+        btn.classList.toggle('active', btnLabel === label);
+      });
+      plannerSummary.textContent = `Selected: ${label}`;
+    }
+
+    function loadState() {
+      const state = getStoredState();
+      if (state.startTime) startInput.value = state.startTime;
+      if (state.endTime) endInput.value = state.endTime;
+      if (state.extraHours !== undefined) extraInput.value = state.extraHours;
+      if (state.viewMode) viewModeInput.value = state.viewMode;
+      applySelectedPresetVisual(state.selectedPreset || '16+8');
+      updateAttemptPanel(state.attemptMode || false, 0);
+    }
+
+    function nowToLocalInputValue(date = new Date()) {
+      const pad = n => String(n).padStart(2, '0');
+      return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function updateSessionBanner(mode, details) {
+      sessionStatus.textContent = mode;
+      sessionDetail.textContent = details;
+    }
+
+    function getLiveElapsedMinutes(session) {
+      if (!session || !session.startedAt) return 0;
+      return Math.max(Math.floor((Date.now() - new Date(session.startedAt).getTime()) / 60000), 0);
+    }
+
+    function deriveEndTimeFromDuration(startMinutes, totalMinutes) {
+      const result = (startMinutes + totalMinutes) % 1440;
+      const hours = Math.floor(result / 60);
+      const minutes = result % 60;
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    }
+
+    function stopLiveTimer() {
+      if (liveTimer) {
+        clearInterval(liveTimer);
+        liveTimer = null;
+      }
+    }
+
+    function startLiveTimer() {
+      stopLiveTimer();
+      liveTimer = setInterval(calculateFast, 1000);
+    }
+
+    function getSelectedPreset() {
+      return PRESETS[getSelectedPresetLabel()];
+    }
+
+    function updateAttemptPanel(enabled, totalHoursFloat) {
+      if (!enabled) {
+        attemptSummary.textContent = 'A cautious one-off challenge, not a daily target.';
+        hydrationText.textContent = '';
+        refeedText.textContent = '';
+        return;
+      }
+
+      if (totalHoursFloat < 16) {
+        attemptSummary.textContent = '36h mode on • hydrate well and keep the day light.';
+      } else if (totalHoursFloat < 24) {
+        attemptSummary.textContent = '36h mode on • electrolytes matter more from here.';
+      } else if (totalHoursFloat < 36) {
+        attemptSummary.textContent = '36h mode on • monitor weakness, dizziness, and break gently if needed.';
+      } else {
+        attemptSummary.textContent = '36h target reached • rehydrate and break the fast gently.';
+      }
+    }
+
+    function usePreset(presetLabel) {
+      const preset = PRESETS[presetLabel];
+      if (!preset) return;
+      const startMinutes = timeToMinutes(startInput.value);
+      endInput.value = deriveEndTimeFromDuration(startMinutes, preset.fast * 60);
+      extraInput.value = '0';
+      setSelectedPreset(presetLabel);
+
+      const now = new Date();
+      const [startHours, startMins] = startInput.value.split(':').map(Number);
+      const startedAt = new Date(now);
+      startedAt.setHours(startHours, startMins, 0, 0);
+      if (startedAt.getTime() > now.getTime()) startedAt.setDate(startedAt.getDate() - 1);
+      setLiveSession({ startedAt: startedAt.toISOString() });
+
+      calculateFast();
+      startLiveTimer();
+    }
+
+    function calculateFast() {
+      let liveSession = getLiveSession();
+      const start = startInput.value;
+      const extraHours = parseFloat(extraInput.value || '0');
+      const selectedPreset = getSelectedPreset();
+      const selectedPresetLabel = getSelectedPresetLabel();
+      const viewMode = viewModeInput.value;
+      const attemptMode = getAttemptMode() || viewMode === 'attempt36';
+
+      if (!start || Number.isNaN(extraHours) || extraHours < 0) {
+        resultText.innerHTML = 'Invalid';
+        detailText.textContent = 'Please enter valid start time and extra duration values.';
+        return;
+      }
+
+      const startMinutes = timeToMinutes(start);
+
+      if (!liveSession || !liveSession.startedAt) {
+        const now = new Date();
+        const [startHours, startMins] = start.split(':').map(Number);
+        const startedAt = new Date(now);
+        startedAt.setHours(startHours, startMins, 0, 0);
+        if (startedAt.getTime() > now.getTime()) startedAt.setDate(startedAt.getDate() - 1);
+        liveSession = { startedAt: startedAt.toISOString() };
+        setLiveSession(liveSession);
+      }
+
+      const totalMinutes = getLiveElapsedMinutes(liveSession) + Math.round(extraHours * 60);
+      const displayEndMinutes = (startMinutes + totalMinutes) % 1440;
+      endInput.value = deriveEndTimeFromDuration(startMinutes, totalMinutes);
+
+      const nextDayText = totalMinutes < 1440
+        ? (displayEndMinutes <= startMinutes ? 'on the next day' : 'on the same day')
+        : 'after at least one full day';
+      const extraText = extraHours > 0 ? ` Plus ${extraHours} extra hour${extraHours === 1 ? '' : 's'}.` : '';
+
+      updateSessionBanner(
+        'Live fast running',
+        attemptMode
+          ? '36h attempt mode is on. Keep it occasional and stop if you feel unwell.'
+          : `Started at ${start}. The timer is counting live from the time you set, and it keeps going even after refresh.`
+      );
+
+      const wholeHours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const totalHoursFloat = totalMinutes / 60;
+      const phase = getCurrentPhase(totalHoursFloat);
+      const phaseStartMinutes = phase.start * 60;
+      const phaseEndMinutes = Number.isFinite(phase.end) ? phase.end * 60 : totalMinutes;
+      const phaseSpan = Math.max(phaseEndMinutes - phaseStartMinutes, 1);
+      const phaseElapsed = Math.max(totalMinutes - phaseStartMinutes, 0);
+      const phasePercent = Math.min((phaseElapsed / phaseSpan) * 100, 100);
+      const phaseColor = getPhaseMarkerColor(phase.start);
+
+      let modePercent = phasePercent;
+      let modeColor = phaseColor;
+      let modeTitle = `${phase.name} • ${phasePercent.toFixed(1)}% through this phase`;
+      let modeHeading = 'Phase progress';
+
+      if (viewMode === 'planner' && selectedPreset) {
+        modePercent = Math.min((totalHoursFloat / selectedPreset.fast) * 100, 100);
+        modeColor = totalHoursFloat >= selectedPreset.fast ? 'var(--green)' : 'var(--accent)';
+        modeTitle = `${selectedPresetLabel} • ${modePercent.toFixed(1)}% of fasting target`;
+        modeHeading = 'Planner progress';
+      }
+
+      if (viewMode === 'attempt36' || attemptMode) {
+        modePercent = Math.min((totalHoursFloat / 36) * 100, 100);
+        modeColor = totalHoursFloat >= 36 ? 'var(--green)' : 'var(--amber)';
+        modeTitle = totalHoursFloat >= 36 ? '36h attempt complete • break gently now' : `36h attempt • ${modePercent.toFixed(1)}% complete`;
+        modeHeading = '36h attempt progress';
+      }
+
+      resultText.innerHTML = formatDuration(totalMinutes);
+      detailText.textContent = `From ${start} to ${endInput.value} ${nextDayText}.${extraText}`;
+      progressTitle.textContent = modeHeading;
+      progressText.textContent = modeTitle;
+      progressBar.style.width = `${modePercent}%`;
+      progressBar.style.background = `linear-gradient(90deg, ${modeColor}, var(--accent), var(--green))`;
+      phaseTitle.textContent = phase.name;
+      phaseTitle.style.color = phaseColor;
+      phaseDetail.textContent = phase.detail;
+
+      statHours.textContent = String(wholeHours);
+      statMinutes.textContent = String(minutes);
+      statDays.textContent = formatDays(totalMinutes);
+
+      updatePhaseMarkers(totalHoursFloat);
+      updateAttemptPanel(attemptMode, totalHoursFloat);
+      setHand(startHand, startMinutes);
+      setHand(endHand, displayEndMinutes);
+      updateClockArc(startMinutes, displayEndMinutes, totalMinutes);
+      saveState();
+    }
+
+    attempt36Btn.addEventListener('click', () => {
+      viewModeInput.value = 'attempt36';
+      setAttemptMode(true);
+      setSelectedPreset('36h');
+
+      const now = new Date();
+      const [startHours, startMins] = startInput.value.split(':').map(Number);
+      const startedAt = new Date(now);
+      startedAt.setHours(startHours, startMins, 0, 0);
+      if (startedAt.getTime() > now.getTime()) startedAt.setDate(startedAt.getDate() - 1);
+
+      extraInput.value = '0';
+      setLiveSession({ startedAt: startedAt.toISOString() });
+      calculateFast();
+      startLiveTimer();
+    });
+
+    cancelAttemptBtn.addEventListener('click', () => {
+      setAttemptMode(false);
+      if (viewModeInput.value === 'attempt36') {
+        viewModeInput.value = 'phases';
+      }
+      calculateFast();
+      startLiveTimer();
+    });
+
+
+    function setActiveTab(tabName) {
+      tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+      trackerPanel.classList.toggle('active', tabName === 'tracker');
+      historyPanel.classList.toggle('active', tabName === 'history');
+    }
+
+    function getHistoryRows() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveHistoryRows(rows) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(rows));
+    }
+
+    function renderHistoryTable() {
+      const rows = getHistoryRows();
+      historyTableBody.innerHTML = rows.map((row, idx) => `
+        <tr>
+          <td><input type="date" value="${row.date || ''}" data-history-field="date" data-history-index="${idx}"></td>
+          <td><input type="time" value="${row.start || ''}" data-history-field="start" data-history-index="${idx}"></td>
+          <td><input type="time" value="${row.end || ''}" data-history-field="end" data-history-index="${idx}"></td>
+          <td><input type="number" step="0.1" value="${row.hours || ''}" data-history-field="hours" data-history-index="${idx}"></td>
+          <td>
+            <select data-history-field="protocol" data-history-index="${idx}">
+              ${['', '12+12', '16+8', '18+6', '20+4', '24h', '36h'].map(opt => `<option value="${opt}" ${row.protocol === opt ? 'selected' : ''}>${opt || '—'}</option>`).join('')}
+            </select>
+          </td>
+          <td><input type="text" value="${row.notes || ''}" data-history-field="notes" data-history-index="${idx}"></td>
+          <td><button class="secondary row-btn" type="button" data-delete-history="${idx}">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function addHistoryRow(prefill = null) {
+      const rows = getHistoryRows();
+      rows.unshift(prefill || { date: '', start: '', end: '', hours: '', protocol: '', notes: '' });
+      saveHistoryRows(rows);
+      renderHistoryTable();
+    }
+
+    function saveCurrentFastToHistory() {
+      saveFastHistoryEntry();
+      setActiveTab('history');
+    }
+
+
+    function saveFastHistoryEntry() {
+      const currentTotalMinutes = (Number(statHours.textContent) || 0) * 60 + (Number(statMinutes.textContent) || 0);
+      if (currentTotalMinutes <= 0) return;
+
+      const rows = getHistoryRows();
+      const protocol = viewModeInput.value === 'planner'
+        ? getSelectedPresetLabel()
+        : (viewModeInput.value === 'attempt36' ? '36h' : '');
+
+      rows.unshift({
+        date: new Date().toISOString().slice(0, 10),
+        start: startInput.value,
+        end: endInput.value,
+        hours: (Math.round((currentTotalMinutes / 60) * 10) / 10).toString(),
+        protocol,
+        notes: ''
+      });
+
+      saveHistoryRows(rows);
+      renderHistoryTable();
+    }
+
+
+    function startNewFastNow() {
+      const now = new Date();
+      const nowStr = nowToLocalInputValue(now);
+
+      stopLiveTimer();
+      clearLiveSession();
+      setAttemptMode(false);
+
+      startInput.value = nowStr;
+      endInput.value = nowStr;
+      extraInput.value = '0';
+      viewModeInput.value = 'phases';
+      setSelectedPreset('16+8');
+      setLiveSession({ startedAt: now.toISOString() });
+
+      resultText.innerHTML = '0h<br>0m';
+      detailText.textContent = `From ${nowStr} to ${nowStr} on the same day.`;
+      statHours.textContent = '0';
+      statMinutes.textContent = '0';
+      statDays.textContent = '0%';
+
+      calculateFast();
+      startLiveTimer();
+    }
+
+    resetBtn.addEventListener('click', () => {
+      saveFastHistoryEntry();
+      startNewFastNow();
+    });
+
+    [startInput, endInput, extraInput, viewModeInput].forEach(el => {
+      el.addEventListener('input', () => {
+        stopLiveTimer();
+        clearLiveSession();
+        if (el === viewModeInput && viewModeInput.value !== 'attempt36') {
+          setAttemptMode(false);
+        }
+        calculateFast();
+        startLiveTimer();
+      });
+    });
+
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fast = Number(btn.dataset.fast);
+        const feed = Number(btn.dataset.feed);
+        const label = feed > 0 ? `${fast}+${feed}` : `${fast}h`;
+        setAttemptMode(false);
+        usePreset(label);
+      });
+    });
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+    });
+
+    addHistoryRowBtn.addEventListener('click', () => addHistoryRow());
+    saveCurrentFastBtn.addEventListener('click', () => saveCurrentFastToHistory());
+
+    historyTableBody.addEventListener('input', (event) => {
+      const target = event.target;
+      if (!target.dataset) return;
+      const field = target.dataset.historyField;
+      const index = target.dataset.historyIndex;
+      if (field === undefined || index === undefined) return;
+      const rows = getHistoryRows();
+      if (!rows[Number(index)]) return;
+      rows[Number(index)][field] = target.value;
+      saveHistoryRows(rows);
+    });
+
+    historyTableBody.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!target.dataset) return;
+      const deleteIndex = target.dataset.deleteHistory;
+      if (deleteIndex === undefined) return;
+      const rows = getHistoryRows();
+      rows.splice(Number(deleteIndex), 1);
+      saveHistoryRows(rows);
+      renderHistoryTable();
+    });
+
+    loadState();
+    renderHistoryTable();
+    setActiveTab('tracker');
+    calculateFast();
+    startLiveTimer();
+  </script>
+</body>
+
+</html>

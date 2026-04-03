@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chroma Tuner Pro + Song Finder</title>
+    <style>
+        :root {
+            --bg-color: #030303;
+            --text-color: #ffffff;
+            --off-color: #ff4444;
+            --near-color: #ffcc00;
+            --tuned-color: #00ff88;
+            --ui-bg: rgba(20, 20, 20, 0.9);
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.25;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            background: var(--ui-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            border: 1px solid #333;
+            z-index: 10;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90vw;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.6rem;
+            color: #888;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        select,
+        button,
+        input {
+            background: #1a1a1a;
+            color: white;
+            border: 1px solid #333;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            outline: none;
+        }
+
+        .manual-btns {
+            display: flex;
+            gap: 2px;
+        }
+
+        .manual-btns button {
+            min-width: 32px;
+            cursor: pointer;
+        }
+
+        button#toggle-btn {
+            background: white;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 80px;
+        }
+
+        button#toggle-btn.active {
+            background: var(--off-color);
+            color: white;
+        }
+
+        #tuner-container {
+            text-align: center;
+            position: relative;
+        }
+
+        .note {
+            font-size: 11rem;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: -6px;
+            transition: color 0.2s;
+            color: #222;
+        }
+
+        .cents-display {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-top: -15px;
+            color: #444;
+            cursor: pointer;
+        }
+
+        #gauge-wrap {
+            width: 400px;
+            height: 60px;
+            margin: 20px auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        #gauge-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #333, transparent);
+        }
+
+        #needle {
+            width: 2px;
+            height: 45px;
+            background: #555;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.1s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+
+        .footer-info {
+            position: fixed;
+            bottom: 20px;
+            color: #555;
+            font-size: 0.7rem;
+            display: flex;
+            gap: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="toolbar">
+        <div class="control-group">
+            <label>Power</label>
+            <button id="toggle-btn" onclick="toggleAudio()">START TUNER</button>
+        </div>
+
+        <div class="control-group">
+            <label>Manual Mode</label>
+            <div class="manual-btns">
+                <button onclick="playManualTone(40, 'E')">E</button>
+                <button onclick="playManualTone(45, 'A')">A</button>
+                <button onclick="playManualTone(50, 'D')">D</button>
+                <button onclick="playManualTone(55, 'G')">G</button>
+                <button onclick="playManualTone(59, 'B')">B</button>
+                <button onclick="playManualTone(64, 'e')">e</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Metronome</label>
+            <div style="display: flex; gap: 4px;">
+                <input type="number" id="bpm-val" value="120" style="width: 45px;">
+                <button id="metro-btn" onclick="toggleMetronome()">MT</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Ref Hz</label>
+            <select id="ref-pitch" onchange="updateSettings()">
+                <option value="440">440</option>
+                <option value="442" selected>442</option>
+                <option value="432">432</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="tuner-container">
+        <p class="note" id="note-display">--</p>
+        <p class="cents-display" id="cents-label" onclick="stopManualTone()">0 ct</p>
+        <div id="gauge-wrap">
+            <div id="gauge-line"></div>
+            <div id="needle"></div>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        <span id="freq-live">0.00 Hz</span>
+        <span id="ref-display">A4 = 442Hz</span>
+    </div>
+
+    <script>
+        let audioCtx, analyser, isRunning = false, animationId;
+        let baseFreq = 442, isManual = false;
+        let currentOsc = null, metroRunning = false, metroTimerId = null;
+
+        const noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function updateSettings() {
+            baseFreq = parseInt(document.getElementById('ref-pitch').value);
+            document.getElementById('ref-display').innerText = `A4 = ${baseFreq}Hz`;
+        }
+
+        async function toggleAudio() {
+            initAudio();
+            if (isRunning) { stopTuner(); return; }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const source = audioCtx.createMediaStreamSource(stream);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 2048;
+                source.connect(analyser);
+                isRunning = true;
+                document.getElementById('toggle-btn').innerText = "STOP";
+                draw();
+            } catch (e) { alert("Mic required."); }
+        }
+
+        function stopTuner() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            document.getElementById('toggle-btn').innerText = "START TUNER";
+            document.getElementById('note-display').innerText = "--";
+        }
+
+        // MANUAL MODE UPDATED
+        function playManualTone(midi, label) {
+            initAudio();
+            if (isRunning) stopTuner();
+            stopManualTone();
+
+            isManual = true;
+            const freq = baseFreq * Math.pow(2, (midi - 69) / 12);
+            currentOsc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            currentOsc.frequency.value = freq;
+            gain.gain.value = 0.15;
+            currentOsc.connect(gain).connect(audioCtx.destination);
+            currentOsc.start();
+
+            const noteEl = document.getElementById('note-display');
+            noteEl.innerText = label;
+            noteEl.style.color = "var(--tuned-color)";
+            document.getElementById('cents-label').innerText = "USING MANUAL MODE (CLICK TO STOP)";
+            document.getElementById('cents-label').style.color = "var(--tuned-color)";
+        }
+
+        function stopManualTone() {
+            if (currentOsc) { currentOsc.stop(); currentOsc = null; }
+            isManual = false;
+            document.getElementById('note-display').innerText = "--";
+            document.getElementById('note-display').style.color = "#222";
+            document.getElementById('cents-label').innerText = "0 ct";
+            document.getElementById('cents-label').style.color = "#444";
+        }
+
+        // METRONOME
+        function toggleMetronome() {
+            initAudio();
+            metroRunning = !metroRunning;
+            if (metroRunning) scheduler(); else clearTimeout(metroTimerId);
+        }
+
+        function scheduler() {
+            const bpm = document.getElementById('bpm-val').value;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.frequency.value = 1000;
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.connect(g).connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            metroTimerId = setTimeout(scheduler, (60 / bpm) * 1000);
+        }
+
+        // TUNING LOGIC (AUTO-CORRELATION)
+        function draw() {
+            if (!isRunning) return;
+            const buffer = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(buffer);
+
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Simplified Pitch Detection
+            let freq = detectPitch(buffer, audioCtx.sampleRate);
+            if (freq > 0 && !isManual) {
+                document.getElementById('freq-live').innerText = freq.toFixed(2) + " Hz";
+                const noteNum = Math.round(12 * (Math.log(freq / baseFreq) / Math.log(2))) + 69;
+                const noteName = noteStrings[noteNum % 12];
+                const cents = Math.round(1200 * Math.log2(freq / (baseFreq * Math.pow(2, (noteNum - 69) / 12))));
+
+                document.getElementById('note-display').innerText = noteName;
+                document.getElementById('cents-label').innerText = cents + " ct";
+                document.getElementById('needle').style.left = (50 + cents) + "%";
+
+                let color = Math.abs(cents) < 5 ? "var(--tuned-color)" : (Math.abs(cents) < 15 ? "var(--near-color)" : "var(--off-color)");
+                document.getElementById('note-display').style.color = color;
+            }
+
+            animationId = requestAnimationFrame(draw);
+        }
+
+        function detectPitch(buf, sr) {
+            let sum = 0; for (let i = 0; i < 1024; i++) sum += buf[i] * buf[i];
+            if (Math.sqrt(sum / 1024) < 0.01) return -1;
+            let best_offset = -1, best_correlation = 0;
+            for (let offset = 20; offset < 500; offset++) {
+                let correlation = 0;
+                for (let i = 0; i < 1024; i++) correlation += Math.abs(buf[i] - buf[i + offset]);
+                correlation = 1 - (correlation / 1024);
+                if (correlation > best_correlation) { best_correlation = correlation; best_offset = offset; }
+            }
+            return sr / best_offset;
+        }
+    </script>
+</body>
+
+</html>

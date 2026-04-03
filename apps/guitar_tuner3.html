@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chroma Tuner Ultra + Chord Logic</title>
+    <style>
+        :root {
+            --bg-color: #030303;
+            --text-color: #ffffff;
+            --tuned-color: #00ff88;
+            --ui-bg: rgba(20, 20, 20, 0.9);
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            background: var(--ui-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            z-index: 10;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.7rem;
+        }
+
+        button {
+            background: #222;
+            color: white;
+            border: 1px solid #444;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button.active {
+            background: var(--tuned-color);
+            color: black;
+        }
+
+        #tuner-container {
+            text-align: center;
+        }
+
+        .note {
+            font-size: 10rem;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .chord-name {
+            font-size: 2rem;
+            color: var(--tuned-color);
+            height: 2.5rem;
+            margin: 10px 0;
+            font-weight: 300;
+        }
+
+        .chroma-bins {
+            display: flex;
+            gap: 4px;
+            margin-top: 20px;
+            align-items: flex-end;
+            height: 50px;
+        }
+
+        .bin {
+            width: 15px;
+            background: #333;
+            transition: height 0.1s, background 0.1s;
+            border-radius: 2px 2px 0 0;
+        }
+
+        .bin.active {
+            background: var(--tuned-color);
+        }
+
+        .bin-label {
+            font-size: 0.5rem;
+            color: #666;
+            margin-top: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="toolbar">
+        <div class="control-group">
+            <button id="power-btn" onclick="toggleAudio()">START ANALYZER</button>
+        </div>
+        <div class="control-group" style="color:#888; align-self:center; margin-left:10px;">
+            Detecting: Monophonic + Polyphonic Chroma
+        </div>
+    </div>
+
+    <div id="tuner-container">
+        <div class="chord-name" id="chord-display">Detecting Chords...</div>
+        <p class="note" id="note-display">--</p>
+
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="chroma-bins" id="bins-container"></div>
+            <div style="display: flex; gap: 4px;" id="labels-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx, analyser, isRunning = false;
+        const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const chordDb = {
+            "4,7": "Major", "3,7": "Minor", "4,7,10": "7", "4,7,11": "Maj7", "3,7,10": "m7", "5,7": "sus4"
+        };
+
+        // Create UI Bins
+        const binsCont = document.getElementById('bins-container');
+        const labsCont = document.getElementById('labels-container');
+        notes.forEach(n => {
+            const b = document.createElement('div'); b.className = 'bin'; b.id = `bin-${n}`;
+            binsCont.appendChild(b);
+            const l = document.createElement('div'); l.className = 'bin-label';
+            l.style.width = '15px'; l.innerText = n; labsCont.appendChild(l);
+        });
+
+        async function toggleAudio() {
+            if (isRunning) { location.reload(); return; }
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const source = audioCtx.createMediaStreamSource(stream);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 8192; // High resolution for low notes
+            source.connect(analyser);
+            isRunning = true;
+            document.getElementById('power-btn').innerText = "STOP";
+            document.getElementById('power-btn').classList.add('active');
+            analyze();
+        }
+
+        function analyze() {
+            if (!isRunning) return;
+            const buffer = new Float32Array(analyser.frequencyBinCount);
+            analyser.getFloatFrequencyData(buffer);
+
+            let chroma = new Array(12).fill(0);
+            const sampleRate = audioCtx.sampleRate;
+            const nyquist = sampleRate / 2;
+
+            // Map FFT bins to 12 musical notes (Chromagram)
+            for (let i = 0; i < buffer.length; i++) {
+                const freq = i * (nyquist / buffer.length);
+                if (freq < 60 || freq > 2000) continue; // Focus on guitar range
+
+                const noteNum = 12 * (Math.log2(freq / 440)) + 69;
+                const noteIdx = Math.round(noteNum) % 12;
+                const val = Math.pow(10, buffer[i] / 20); // Convert dB to linear
+                if (val > 0.01) chroma[noteIdx] += val;
+            }
+
+            // Normalize and Update UI
+            const maxVal = Math.max(...chroma);
+            let activeNotes = [];
+            chroma.forEach((v, i) => {
+                const height = maxVal > 0 ? (v / maxVal) * 50 : 0;
+                const el = document.getElementById(`bin-${notes[i]}`);
+                el.style.height = height + "px";
+                if (height > 25) {
+                    el.classList.add('active');
+                    activeNotes.push(i);
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+
+            identifyChord(activeNotes);
+            requestAnimationFrame(analyze);
+        }
+
+        function identifyChord(indices) {
+            if (indices.length === 0) {
+                document.getElementById('chord-display').innerText = "";
+                document.getElementById('note-display').innerText = "--";
+                return;
+            }
+
+            const root = indices[0];
+            document.getElementById('note-display').innerText = notes[root];
+
+            if (indices.length > 1) {
+                // Calculate intervals relative to root
+                const intervals = indices.slice(1).map(i => (i - root + 12) % 12).sort((a, b) => a - b);
+                const key = intervals.join(',');
+                const type = chordDb[key] || "Cluster";
+                document.getElementById('chord-display').innerText = notes[root] + " " + type;
+            } else {
+                document.getElementById('chord-display').innerText = "Single Note";
+            }
+        }
+    </script>
+</body>
+
+</html>
