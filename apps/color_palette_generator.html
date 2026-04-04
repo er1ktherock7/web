@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main-css.css">
+    <title>Color Palette Generator</title>
+    <style>
+        :root{--panel:#131824;--panel-2:#1c2432;--text:#eff5ff;--border:rgba(255,255,255,.08);}
+        body{margin:0;background:var(--darkmode-black);color:var(--text);}
+        .app-intro{padding-top:150px;padding-bottom:10px;}
+        .app-intro h1{font-size:3rem;}
+        .return-btn{margin-top:24px;}
+        .app-shell{padding:20px 20px 80px;}
+        .app-wrap{max-width:1200px;margin:0 auto;border-radius:24px;border:1px solid var(--border);padding:32px;background:linear-gradient(180deg,#101623,#0d121a);}
+        .controls{display:grid;grid-template-columns:1fr auto;gap:16px;margin-bottom:24px;}
+        input,select,button{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--border);}
+        input,select{background:var(--panel-2);color:var(--text);}
+        button{background:#9ed0ff;color:#0b1320;font-weight:700;cursor:pointer;}
+        .palette{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;}
+        .swatch{border-radius:18px;overflow:hidden;border:1px solid var(--border);background:var(--panel);}
+        .swatch-color{height:180px;}
+        .swatch-meta{padding:14px;display:grid;gap:8px;}
+        .swatch-meta strong{font-family:'Karla',sans-serif;}
+        .swatch-meta button{background:transparent;color:var(--text);}
+        .helper{color:#9ca9bd;font-family:'Open Sans',sans-serif;margin-top:18px;}
+        @media (max-width:900px){.controls,.palette{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <header id="header" class="header-pages"><div class="logo"><a class="btn-home" href="../index.html"><h3>홈</h3><img src="../img/icons/home.svg" alt=""></a></div><nav id="nav-menu"><button id="btn-mobile" class="menu-toggle"><span id="hamburger"></span></button><ul class="header-menu"><li class="menu-item"><a href="../about.html"><h3>나야나</h3><p>About</p></a></li><li class="menu-item"><a href="../lessons.html"><h3>수업</h3><p>Lessons</p></a></li><li class="menu-item"><a href="../publications.html"><h3>출판물</h3><p>Publications</p></a></li><li class="menu-item"><a href="../faq.html"><h3>자자주 묻는 질문</h3><p>FAQ</p></a></li><li class="menu-item"><a href="../contact.html"><h3>연락처</h3><p>Contact</p></a></li><li class="menu-item dark"><h4>Dark Theme</h4><button class="btn-dark-theme theme-toggle"><div class="dark-mode-indicator"></div></button></li><li class="theme theme-toggle"><p>dark mode</p></li></ul></nav></header>
+    <section class="title container app-intro"><h1>COLOR PALETTE GENERATOR</h1><p>Build quick, usable palettes from a base color and copy each swatch in one click.</p><a class="header-btn return-btn" href="../publications.html">Return to Publications</a></section>
+    <main class="app-shell">
+        <div class="app-wrap">
+            <div class="controls">
+                <div style="display:grid;gap:16px;">
+                    <div><label for="baseColor">Base Color</label><input id="baseColor" type="color" value="#5ea8ff"></div>
+                    <div><label for="scheme">Scheme</label><select id="scheme"><option value="analogous">Analogous</option><option value="complementary">Complementary</option><option value="triad">Triad</option><option value="monochrome">Monochrome</option></select></div>
+                </div>
+                <button id="generateBtn">Generate Palette</button>
+            </div>
+            <div class="palette" id="palette"></div>
+            <div class="helper">Use the palette as a starting point for interfaces, illustrations, or presentation themes.</div>
+        </div>
+    </main>
+    <footer class="footer"><div class="footer-left"><div class="footer-left-start"><img src="../img/icons/logo-light.svg" alt=""><p>© 2023 - All rights reserved</p></div></div><div class="footer-right"><div class="footer-right-start"><a href="../about.html">About</a><a href="../lessons.html">Lessons</a><a href="../publications.html">Publications</a></div><div class="footer-right-mid"><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></div><div class="footer-right-end"><a href="../about.html">Linkedin</a><a href="https://www.instagram.com/hrktechit/">Instagram</a></div></div></footer>
+    <script>
+        const baseColor = document.getElementById('baseColor');
+        const scheme = document.getElementById('scheme');
+        const generateBtn = document.getElementById('generateBtn');
+        const palette = document.getElementById('palette');
+        function hexToRgb(hex) {
+            const value = hex.replace('#', '');
+            return { r: parseInt(value.slice(0, 2), 16), g: parseInt(value.slice(2, 4), 16), b: parseInt(value.slice(4, 6), 16) };
+        }
+        function rgbToHex(r, g, b) {
+            return `#${[r, g, b].map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0')).join('')}`;
+        }
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h; let s; const l = (max + min) / 2;
+            if (max === min) h = s = 0;
+            else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) { case r: h = (g - b) / d + (g < b ? 6 : 0); break; case g: h = (b - r) / d + 2; break; default: h = (r - g) / d + 4; }
+                h /= 6;
+            }
+            return { h: h * 360, s, l };
+        }
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            let r, g, b;
+            if (s === 0) r = g = b = l;
+            else {
+                const hue2rgb = (p, q, t) => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return { r: r * 255, g: g * 255, b: b * 255 };
+        }
+        function buildPalette() {
+            const rgb = hexToRgb(baseColor.value);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            let variants = [];
+            if (scheme.value === 'analogous') variants = [-30, -15, 0, 15, 30].map((shift) => ({ h: hsl.h + shift, s: hsl.s, l: hsl.l }));
+            if (scheme.value === 'complementary') variants = [-20, 0, 20, 180, 200].map((shift) => ({ h: hsl.h + shift, s: hsl.s, l: hsl.l }));
+            if (scheme.value === 'triad') variants = [0, 20, 120, 140, 240].map((shift) => ({ h: hsl.h + shift, s: hsl.s, l: hsl.l }));
+            if (scheme.value === 'monochrome') variants = [-0.18, -0.08, 0, 0.1, 0.2].map((shift) => ({ h: hsl.h, s: hsl.s, l: Math.max(0.08, Math.min(0.9, hsl.l + shift)) }));
+            palette.innerHTML = variants.map((variant) => {
+                const rgbVariant = hslToRgb((variant.h + 360) % 360, variant.s, variant.l);
+                const hex = rgbToHex(rgbVariant.r, rgbVariant.g, rgbVariant.b);
+                return `<div class="swatch"><div class="swatch-color" style="background:${hex}"></div><div class="swatch-meta"><strong>${hex}</strong><button data-color="${hex}">Copy</button></div></div>`;
+            }).join('');
+        }
+        palette.addEventListener('click', async (event) => {
+            const button = event.target.closest('button[data-color]');
+            if (!button) return;
+            try { await navigator.clipboard.writeText(button.dataset.color); button.textContent = 'Copied'; }
+            catch { button.textContent = 'Blocked'; }
+            setTimeout(() => button.textContent = 'Copy', 1200);
+        });
+        generateBtn.addEventListener('click', buildPalette);
+        [baseColor, scheme].forEach((element) => element.addEventListener('input', buildPalette));
+        buildPalette();
+    </script>
+    <script defer type="module" src="../Js/main.js"></script>
+    <script defer type="module" src="../Js/dark-theme.js"></script>
+</body>
+</html>

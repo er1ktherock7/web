@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main-css.css">
+    <title>Unit Converter</title>
+    <style>
+        :root{--panel:#182230;--panel-2:#1f2b3e;--text:#f2f6fb;--muted:#9ba8b8;--border:rgba(255,255,255,.08);}
+        body{margin:0;background:var(--darkmode-black);color:var(--text);}
+        .app-intro{padding-top:150px;padding-bottom:10px;}
+        .app-intro h1{font-size:3rem;}
+        .return-btn{margin-top:24px;}
+        .app-shell{padding:20px 20px 80px;}
+        .app-wrap{max-width:1100px;margin:0 auto;border:1px solid var(--border);border-radius:24px;background:linear-gradient(180deg,#121a26,#0f151f);padding:32px;box-shadow:rgba(0,0,0,.28) 0 20px 40px -12px;}
+        .layout,.result-grid{display:grid;gap:24px;}
+        .layout{grid-template-columns:1fr 1fr;}
+        .result-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+        .panel,.result-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;padding:24px;}
+        .grid{display:grid;gap:16px;}
+        label{color:var(--muted);font-size:.92rem;}
+        select,input{width:100%;font:inherit;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);}
+        .result-card span{display:block;color:var(--muted);margin-bottom:8px;}
+        .result-card strong{font-size:1.4rem;font-family:'Karla',sans-serif;}
+        .helper{font-family:'Open Sans',sans-serif;color:var(--muted);line-height:1.55;}
+        @media (max-width:860px){.layout,.result-grid{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <header id="header" class="header-pages"><div class="logo"><a class="btn-home" href="../index.html"><h3>홈</h3><img src="../img/icons/home.svg" alt=""></a></div><nav id="nav-menu"><button id="btn-mobile" class="menu-toggle"><span id="hamburger"></span></button><ul class="header-menu"><li class="menu-item"><a href="../about.html"><h3>나야나</h3><p>About</p></a></li><li class="menu-item"><a href="../lessons.html"><h3>수업</h3><p>Lessons</p></a></li><li class="menu-item"><a href="../publications.html"><h3>출판물</h3><p>Publications</p></a></li><li class="menu-item"><a href="../faq.html"><h3>자자주 묻는 질문</h3><p>FAQ</p></a></li><li class="menu-item"><a href="../contact.html"><h3>연락처</h3><p>Contact</p></a></li><li class="menu-item dark"><h4>Dark Theme</h4><button class="btn-dark-theme theme-toggle"><div class="dark-mode-indicator"></div></button></li><li class="theme theme-toggle"><p>dark mode</p></li></ul></nav></header>
+    <section class="title container app-intro"><h1>UNIT CONVERTER</h1><p>Convert across common measurement systems with instant, readable output.</p><a class="header-btn return-btn" href="../publications.html">Return to Publications</a></section>
+    <main class="app-shell">
+        <div class="app-wrap">
+            <div class="layout">
+                <section class="panel grid">
+                    <div><label for="category">Category</label><select id="category"><option value="length">Length</option><option value="weight">Weight</option><option value="temperature">Temperature</option><option value="speed">Speed</option><option value="storage">Storage</option></select></div>
+                    <div><label for="fromUnit">From Unit</label><select id="fromUnit"></select></div>
+                    <div><label for="toUnit">To Unit</label><select id="toUnit"></select></div>
+                    <div><label for="inputValue">Value</label><input id="inputValue" type="number" value="1" step="any"></div>
+                </section>
+                <section class="panel grid">
+                    <div class="result-grid">
+                        <div class="result-card"><span>Converted value</span><strong id="outputValue">1</strong></div>
+                        <div class="result-card"><span>Formula view</span><strong id="formulaLabel">Direct ratio</strong></div>
+                    </div>
+                    <div class="helper" id="helperText">Pick a measurement category, enter a value, and switch between units to see instant conversion results.</div>
+                </section>
+            </div>
+        </div>
+    </main>
+    <footer class="footer"><div class="footer-left"><div class="footer-left-start"><img src="../img/icons/logo-light.svg" alt=""><p>© 2023 - All rights reserved</p></div></div><div class="footer-right"><div class="footer-right-start"><a href="../about.html">About</a><a href="../lessons.html">Lessons</a><a href="../publications.html">Publications</a></div><div class="footer-right-mid"><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></div><div class="footer-right-end"><a href="../about.html">Linkedin</a><a href="https://www.instagram.com/hrktechit/">Instagram</a></div></div></footer>
+    <script>
+        const data = { length: { meter: 1, kilometer: 1000, centimeter: 0.01, inch: 0.0254, foot: 0.3048, mile: 1609.344 }, weight: { kilogram: 1, gram: 0.001, pound: 0.45359237, ounce: 0.028349523125 }, speed: { "m/s": 1, "km/h": 0.2777777778, mph: 0.44704, knot: 0.514444 }, storage: { byte: 1, kilobyte: 1024, megabyte: 1048576, gigabyte: 1073741824 } };
+        const category = document.getElementById('category');
+        const fromUnit = document.getElementById('fromUnit');
+        const toUnit = document.getElementById('toUnit');
+        const inputValue = document.getElementById('inputValue');
+        const outputValue = document.getElementById('outputValue');
+        const formulaLabel = document.getElementById('formulaLabel');
+        const helperText = document.getElementById('helperText');
+        function renderUnits() {
+            const units = category.value === 'temperature' ? ['celsius', 'fahrenheit', 'kelvin'] : Object.keys(data[category.value]);
+            fromUnit.innerHTML = units.map((unit) => `<option value="${unit}">${unit}</option>`).join('');
+            toUnit.innerHTML = units.map((unit) => `<option value="${unit}">${unit}</option>`).join('');
+            if (units[1]) toUnit.value = units[1];
+            convert();
+        }
+        function convertTemperature(value, from, to) {
+            let celsius = value;
+            if (from === 'fahrenheit') celsius = (value - 32) * 5 / 9;
+            if (from === 'kelvin') celsius = value - 273.15;
+            if (to === 'celsius') return celsius;
+            if (to === 'fahrenheit') return celsius * 9 / 5 + 32;
+            return celsius + 273.15;
+        }
+        function convert() {
+            const value = Number(inputValue.value || 0);
+            if (category.value === 'temperature') {
+                const result = convertTemperature(value, fromUnit.value, toUnit.value);
+                outputValue.textContent = `${result.toFixed(4)} ${toUnit.value}`;
+                formulaLabel.textContent = 'Temperature formula';
+                helperText.textContent = `Temperature uses direct formulas instead of a fixed multiplier between ${fromUnit.value} and ${toUnit.value}.`;
+                return;
+            }
+            const baseValue = value * data[category.value][fromUnit.value];
+            const result = baseValue / data[category.value][toUnit.value];
+            outputValue.textContent = `${result.toFixed(6).replace(/\.?0+$/, '')} ${toUnit.value}`;
+            formulaLabel.textContent = 'Base-unit ratio';
+            helperText.textContent = `The converter maps ${fromUnit.value} into the base unit for ${category.value}, then converts that base value into ${toUnit.value}.`;
+        }
+        [category, fromUnit, toUnit, inputValue].forEach((element) => element.addEventListener('input', () => element === category ? renderUnits() : convert()));
+        renderUnits();
+    </script>
+    <script defer type="module" src="../Js/main.js"></script>
+    <script defer type="module" src="../Js/dark-theme.js"></script>
+</body>
+</html>

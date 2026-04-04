@@ -5,23 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/main-css.css">
-    <title>Lucas Herick - Math, music and data | Publication</title>
+    <title>Lucas Herick - Math, music and data | Writings and Apps</title>
 </head>
 <body id="publication-page">
         <header id="header" class="header-pages">
             <div class="logo">
-                <a  class="btn-home" href="index.html">
+                <a class="btn-home" href="index.html">
                 <h3>홈</h3>
                 <img src="./img/icons/home.svg" alt="">
                 </a>
             </div>
             <nav id="nav-menu">
                 <button id="btn-mobile" class="menu-toggle">
-                    <span id="hamburger" ></span>
+                    <span id="hamburger"></span>
                 </button>
                 <ul class="header-menu">
                     <li class="menu-item">
-                        <a href="about.html"> 
+                        <a href="about.html">
                         <h3>나야나</h3>
                         <p>About</p>
                         </a>
@@ -60,140 +60,93 @@
                 </ul>
             </nav>
         </header>
-        <section class="title container">
-            <h1>PUBLICATIONS</h1>
-            <p>Welcome to my publications page! Here you will find my articles on 
-                programming, music, mathematics, classes, and other subjects. I share 
-                my knowledge and experience on various platforms, including print and 
-                digital publications. My areas of expertise are programming, mathematics, 
-                music, and education, and I strive to make complex topics accessible. </p>
+        <section class="title container publication-hero">
+            <h1>WRITINGS & APPS</h1>
+            <p>This page collects all the browser apps I am building across music, code, data, design, and practical everyday tools. Everything is listed together below so it is easy to browse from one place.</p>
         </section>
-        <!-- Para criar um novo post de publicações, voce deve copiar a div publications, o id nesse caso
-        seria usado para caso no futuro haja algum tipo de interação com js, o id pode ser mudado pelo
-        nome do artigo/ post. Só se atenta a adicionar a classe certa depois do titulo, caso seja um
-        artigo de matematica, voce adiciona a "class math" na div após o titulo, caso seja um de coding
-        adiciona a class "code", e por ai vai, nessa página é basicamente uma prévia do artigo/ post
-        a página a ser criada fica na pasta de article, la tem um arquivo base, pode pode mudar somente
-        o conteúdo. Não se esqueça de linkar na tag 'a' o link para o artigo novo criado na pasta articles.
-        Na primeira publicação estão comentadas as partes a serem mexidas quando forem criadas novas
-        publicações/ posts -->
-        <article id="publication1" class="publications container">
-            <div class="publication-item">
-                <div>
-                    <h1>Titulo</h1>
-                    <div class="math"><h4>Math</h4></div> <!-- NOME DA CLASSE REFERENTE AO CONTEÚDO -->
-                </div>
-                
+
+        <section class="container app-section">
+            <div class="section-heading">
+                <h2>All Apps</h2>
+                <p>The newest five tools are included here alongside the existing apps, all in one grid.</p>
+            </div>
+            <div class="app-grid">
+                <article class="app-card"><div class="app-card-top"><span class="other">Tool</span><h3>BPM Tap Tool</h3></div><p>Tap a beat repeatedly to estimate tempo, track interval stability, and lock in a quick BPM reference.</p><a href="./apps/bpm_tap_tool.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="math">Math</span><h3>Unit Converter</h3></div><p>Convert values across length, weight, temperature, speed, and storage units with instant results.</p><a href="./apps/unit_converter.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="code">Code</span><h3>Regex Tester</h3></div><p>Test expressions, switch flags, inspect matches, and experiment with replacement patterns in one place.</p><a href="./apps/regex_tester.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="code">Code</span><h3>Markdown Previewer</h3></div><p>Write Markdown on the left and preview the rendered output on the right with simple editing helpers.</p><a href="./apps/markdown_previewer.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="other">Design</span><h3>Color Palette Generator</h3></div><p>Generate clean palettes from a base color using complementary, analogous, monochrome, and triad variations.</p><a href="./apps/color_palette_generator.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="code">Code</span><h3>ER Diagram Maker</h3></div><p>Model entities and relationships visually, then export your structure without needing a separate desktop tool.</p><a href="./apps/DER_maker.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="other">Wellness</span><h3>Intermittent Fasting Calculator</h3></div><p>Track fasting windows, monitor milestones, and keep a simple history of sessions in local storage.</p><a href="./apps/Fasting_calculator_v1.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="music">Music</span><h3>Chroma Tuner Pro</h3></div><p>A quick tuner with manual reference notes, metronome support, and live pitch feedback for practice sessions.</p><a href="./apps/guitar_tuner2.html">Open App <span class="image"></span></a></article>
+                <article class="app-card"><div class="app-card-top"><span class="music">Music</span><h3>Chroma Tuner Ultra</h3></div><p>An experimental tuner that also attempts simple chord and chroma analysis from incoming audio.</p><a href="./apps/guitar_tuner3.html">Open App <span class="image"></span></a></article>
             </div>
             <div class="publication-item">
-                <h3>Pequeno subtitulo do assunto</h3>
-                <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Omnis iste qui fugiat nisi illum distinctio doloremque 
-                    odit beatae impedit ducimus autem consequuntur, excepturi 
-                    similique repellendus et ipsam eos itaque iusto!
-                    Numquam nobis expedita velit! Dignissimos dolores commodi 
-                    laudantium, quae consequuntur aliquam itaque dicta provident 
-                    aliquid eos officia praesentium pariatur illum labore recusandae! 
-                    Tenetur repellendus, laudantium quam nemo temporibus placeat quidem?
-                </p>
-                <div>
-                     <a href="./articles/base-article.html">Read Article <!-- LINK PARA ARTIGO -->
-                        <div class="image"></div>
-                    </a>
+                <div class="app-preview">
+                    <span class="app-preview-label">HTML App</span>
+                    <strong>Track sessions</strong>
+                    <p>Follow fasting phases, switch planner modes, and keep a simple session history.</p>
                 </div>
-            </div>
-            <div class="publication-item">
-                <img src="./img/teste.avif" alt="">
             </div>
         </article>
-        <article id="publication2" class="publications container">
-            <div class="publication-item">
-                <div>
-                    <h1>Titulo</h1>
-                    <div class="code"><h4>Code</h4></div>
-                </div>
-            </div>
-            <div class="publication-item">
-                <h3>Pequeno subtitulo do assunto</h3>
-                <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Omnis iste qui fugiat nisi illum distinctio doloremque 
-                    odit beatae impedit ducimus autem consequuntur, excepturi 
-                    similique repellendus et ipsam eos itaque iusto!
-                    Numquam nobis expedita velit! Dignissimos dolores commodi 
-                    laudantium, quae consequuntur aliquam itaque dicta provident 
-                    aliquid eos officia praesentium pariatur illum labore recusandae!
-                </p>
-                <div>
-                    <a href="">Read Article
-                        <div class="image"></div>
-                    </a>
-                </div>
-            </div>
-            <div class="publication-item">
-                <img src="./img/teste.avif" alt="">
-            </div>
-        </article>
+
         <article id="publication3" class="publications container">
             <div class="publication-item">
                 <div>
-                    <h1>Titulo</h1>
+                    <h1>Chroma Tuner Pro + Song Finder</h1>
                     <div class="music"><h4>Music</h4></div>
                 </div>
-                
             </div>
             <div class="publication-item">
-                <h3>Pequeno subtitulo do assunto</h3>
+                <h3>Fast tuning workflow for guitar practice</h3>
                 <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Omnis iste qui fugiat nisi illum distinctio doloremque 
-                    odit beatae impedit ducimus autem consequuntur, excepturi 
-                    similique repellendus et ipsam eos itaque iusto!
-                    Numquam nobis expedita velit! Dignissimos dolores commodi 
-                    laudantium, quae consequuntur aliquam itaque dicta provident 
-                    aliquid eos officia praesentium pariatur illum labore recusandae! 
-                    Tenetur repellendus, laudantium quam nemo temporibus placeat quidem?
+                    A tuner focused on quick instrument setup, with live pitch detection, manual
+                    reference notes, a metronome, and alternate reference pitches. It is a compact
+                    utility for rehearsals and practice sessions.
                 </p>
                 <div>
-                    <a href="">Read Article
+                    <a href="./apps/guitar_tuner2.html">Open App
                         <div class="image"></div>
                     </a>
                 </div>
             </div>
             <div class="publication-item">
-                <img src="./img/teste.avif" alt="">
+                <div class="app-preview">
+                    <span class="app-preview-label">HTML App</span>
+                    <strong>Tune faster</strong>
+                    <p>Use microphone input, play reference tones, and keep tempo with the built-in metronome.</p>
+                </div>
             </div>
         </article>
+
         <article id="publication4" class="publications container">
             <div class="publication-item">
                 <div>
-                    <h1>Titulo</h1>
-                    <div class="other"><h4>Other</h4></div>
+                    <h1>Chroma Tuner Ultra + Chord Logic</h1>
+                    <div class="music"><h4>Music</h4></div>
                 </div>
             </div>
             <div class="publication-item">
-                <h3>Pequeno subtitulo do assunto</h3>
+                <h3>Pitch and chord detection experiment</h3>
                 <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Omnis iste qui fugiat nisi illum distinctio doloremque 
-                    odit beatae impedit ducimus autem consequuntur, excepturi 
-                    similique repellendus et ipsam eos itaque iusto!
-                    Numquam nobis expedita velit! Dignissimos dolores commodi 
-                    laudantium, quae consequuntur aliquam itaque dicta provident 
-                    aliquid eos officia praesentium pariatur illum labore recusandae!
+                    A more experimental tuner that visualizes chroma bins and attempts simple chord
+                    recognition from live input. It is built for testing musical analysis ideas
+                    directly in the browser.
                 </p>
                 <div>
-                    <a href="">Read Article
+                    <a href="./apps/guitar_tuner3.html">Open App
                         <div class="image"></div>
                     </a>
                 </div>
             </div>
             <div class="publication-item">
-                <img src="./img/teste.avif" alt="">
+                <div class="app-preview">
+                    <span class="app-preview-label">HTML App</span>
+                    <strong>Analyze harmony</strong>
+                    <p>Watch note energy bins update live and see basic chord labels from incoming audio.</p>
+                </div>
             </div>
         </article>
-        
 
         <footer class="footer">
             <div class="footer-left">
@@ -203,24 +156,11 @@
                 </div>
             </div>
             <div class="footer-right">
-                <div class="footer-right-start">
-                    <a href="./about.html">About</a>
-                    <a href="./lessons.html">Lessons</a>
-                    <a href="./publications.html">Publications</a>
-                </div>
-
-                <div class="footer-right-mid">
-                    <a href="./faq.html">FAQ</a>
-                    <a href="./contact.html">Contact</a>
-                </div>
-
-                <div class="footer-right-end">
-                    <a href="./about.html">Linkedin</a>
-                    <a href="https://www.instagram.com/hrktechit/">Instagram</a>
-                </div>
+                <div class="footer-right-start"><a href="./about.html">About</a><a href="./lessons.html">Lessons</a><a href="./publications.html">Publications</a></div>
+                <div class="footer-right-mid"><a href="./faq.html">FAQ</a><a href="./contact.html">Contact</a></div>
+                <div class="footer-right-end"><a href="./about.html">Linkedin</a><a href="https://www.instagram.com/hrktechit/">Instagram</a></div>
             </div>
         </footer>
-        <script defer type="module" src="./Js/lessons.js"></script>
         <script defer type="module" src="./Js/main.js"></script>
         <script defer type="module" src="./Js/dark-theme.js"></script>
 </body>
