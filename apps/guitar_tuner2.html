@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main-css.css">
     <title>Chroma Tuner Pro + Song Finder</title>
     <style>
         :root {
@@ -17,15 +18,38 @@
 
         body {
             margin: 0;
-            background-color: var(--bg-color);
+            background-color: var(--darkmode-black, #030303);
             color: var(--text-color);
-            font-family: 'Inter', -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .app-intro {
+            padding-top: 150px;
+            padding-bottom: 10px;
+        }
+
+        .app-intro h1 {
+            font-size: 3rem;
+        }
+
+        .return-btn {
+            margin-top: 24px;
+        }
+
+        .tuner-stage {
+            position: relative;
+            max-width: 1200px;
+            min-height: 780px;
+            margin: 0 auto 80px;
+            background-color: var(--bg-color);
+            border-radius: 24px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            padding: 40px 20px 100px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
         }
 
         #canvas {
@@ -51,6 +75,8 @@
             flex-wrap: wrap;
             justify-content: center;
             max-width: 90vw;
+            position: relative;
+            z-index: 10;
         }
 
         .control-group {
@@ -105,6 +131,7 @@
         #tuner-container {
             text-align: center;
             position: relative;
+            z-index: 10;
         }
 
         .note {
@@ -150,7 +177,7 @@
         }
 
         .footer-info {
-            position: fixed;
+            position: absolute;
             bottom: 20px;
             color: #555;
             font-size: 0.7rem;
@@ -158,12 +185,75 @@
             gap: 20px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
         }
     </style>
 </head>
 
 <body>
+    <header id="header" class="header-pages">
+        <div class="logo">
+            <a class="btn-home" href="../index.html">
+            <h3>홈</h3>
+            <img src="../img/icons/home.svg" alt="">
+            </a>
+        </div>
+        <nav id="nav-menu">
+            <button id="btn-mobile" class="menu-toggle">
+                <span id="hamburger"></span>
+            </button>
+            <ul class="header-menu">
+                <li class="menu-item">
+                    <a href="../about.html">
+                    <h3>나야나</h3>
+                    <p>About</p>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../lessons.html">
+                    <h3>수업</h3>
+                    <p>Lessons</p>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../publications.html">
+                    <h3>출판물</h3>
+                    <p>Publications</p>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../faq.html">
+                    <h3>자자주 묻는 질문</h3>
+                    <p>FAQ</p>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../contact.html">
+                    <h3>연락처</h3>
+                    <p>Contact</p>
+                    </a>
+                </li>
+                <li class="menu-item dark">
+                    <h4>Dark Theme</h4>
+                    <button class="btn-dark-theme theme-toggle"><div class="dark-mode-indicator"></div></button>
+                </li>
+                <li class="theme theme-toggle">
+                    <p>dark mode</p>
+                </li>
+            </ul>
+        </nav>
+    </header>
 
+    <section class="title container app-intro">
+        <h1>CHROMA TUNER PRO</h1>
+        <p>A quick guitar-focused tuner with manual notes, a metronome, and live pitch feedback.</p>
+        <a class="header-btn return-btn" href="../publications.html">Return to Publications</a>
+    </section>
+
+    <section class="container">
+    <div class="tuner-stage">
     <canvas id="canvas"></canvas>
 
     <div class="toolbar">
@@ -215,6 +305,34 @@
         <span id="freq-live">0.00 Hz</span>
         <span id="ref-display">A4 = 442Hz</span>
     </div>
+    </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-left-start">
+                <img src="../img/icons/logo-light.svg" alt="">
+                <p>© 2023 - All rights reserved</p>
+            </div>
+        </div>
+        <div class="footer-right">
+            <div class="footer-right-start">
+                <a href="../about.html">About</a>
+                <a href="../lessons.html">Lessons</a>
+                <a href="../publications.html">Publications</a>
+            </div>
+
+            <div class="footer-right-mid">
+                <a href="../faq.html">FAQ</a>
+                <a href="../contact.html">Contact</a>
+            </div>
+
+            <div class="footer-right-end">
+                <a href="../about.html">Linkedin</a>
+                <a href="https://www.instagram.com/hrktechit/">Instagram</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
         let audioCtx, analyser, isRunning = false, animationId;
@@ -346,6 +464,8 @@
             return sr / best_offset;
         }
     </script>
+    <script defer type="module" src="../Js/main.js"></script>
+    <script defer type="module" src="../Js/dark-theme.js"></script>
 </body>
 
 </html>
