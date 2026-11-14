@@ -1,0 +1,30 @@
+1:"$Sreact.fragment"
+2:I[7121,[],""]
+3:I[4581,[],""]
+4:"static/chunks/500-fc3b64d9ff4a32a7.js"
+5:"static/chunks/273-0933ed245a929e31.js"
+6:"static/chunks/app/page-156aecacc5ec25fb.js"
+7:I[8500,["500","$4","273","$5","974","$6"],""]
+e:I[484,[],"OutletBoundary"]
+f:"$Sreact.suspense"
+12:"ViewportBoundary"
+13:I[484,[],"$12"]
+14:"MetadataBoundary"
+15:I[484,[],"$14"]
+16:I[6869,[],"IconMark"]
+:HL["/web/_next/static/css/2272a966bf170579.css","style"]
+9:X
+c:X
+c:C
+d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","main",null,{"id":"main","className":"wrap case","children":[["$","p",null,{"className":"eyebrow","children":"404 / A SMALL DETOUR"}],["$","h1",null,{"children":"This page wandered off."}],["$","p",null,{"className":"lead","children":"Let’s get you back to the work."}],["$","$L7",null,{"className":"primary-button","href":"/","style":{"marginTop":30},"children":"Back to Herick"}]]}],null,["$","$Le",null,{"children":["$","$f",null,{"name":"Next.MetadataOutlet","children":"$@10"}]}]]}],"p":"$@11","v":null,"s":"$9"}}]]
+a:[["children",{"s":"_not-found","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}],"p":"$@b","v":"$c","s":"$9"},"c":"$Qd"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/web/_next/static/css/2272a966bf170579.css","precedence":"next"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":[["$","a",null,{"className":"skip-link","href":"#main","children":"Skip to content"}],["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}],"notFound":[["$","main",null,{"id":"main","className":"wrap case","children":[["$","p",null,{"className":"eyebrow","children":"404 / A SMALL DETOUR"}],["$","h1",null,{"children":"This page wandered off."}],["$","p",null,{"className":"lead","children":"Let’s get you back to the work."}],["$","$L7",null,{"className":"primary-button","href":"/","style":{"marginTop":30},"children":"Back to Herick"}]]}],[]]}]]}]}]]}],"p":"$@8","v":null,"s":"$9"},"c":"$Qa"},"h":{"r":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L13",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L15",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$f",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Herick — Data, code & a little rhythm."}],["$","meta","1",{"name":"description","content":"Lucas Herick. Data analytics, data engineering, and software development. Analytical thinking meets creative curiosity. Based in Brazil."}],["$","meta","2",{"name":"robots","content":"index, follow"}],["$","meta","3",{"property":"og:title","content":"Herick — Data, code & a little rhythm."}],["$","meta","4",{"property":"og:description","content":"Analytical thinking. Creative curiosity. Data and software by Lucas Herick."}],["$","meta","5",{"property":"og:image","content":"https://er1ktherock7.github.io/web/web/og-image.png"}],["$","meta","6",{"property":"og:image:width","content":"1200"}],["$","meta","7",{"property":"og:image:height","content":"630"}],["$","meta","8",{"property":"og:type","content":"website"}],["$","meta","9",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","10",{"name":"twitter:title","content":"Herick — Data, code & a little rhythm."}],["$","meta","11",{"name":"twitter:description","content":"Analytical thinking. Creative curiosity. Data and software by Lucas Herick."}],["$","meta","12",{"name":"twitter:image","content":"https://er1ktherock7.github.io/web/web/og-image.png"}],["$","meta","13",{"name":"twitter:image:width","content":"1200"}],["$","meta","14",{"name":"twitter:image:height","content":"630"}],["$","link","15",{"rel":"icon","href":"/web/icon.svg?7e7ccae0737be880","type":"image/svg+xml","sizes":"any"}],["$","$L16","16",{}]]}]}],null]}],null]}],"p":"$@17","v":null,"s":"$9"}},"a":"$@18","u":"$@19","b":"xGH0nCHFXtVWKpVuXz2Lh"}
+10:null
+9:300
+19:true
+9:C
+18:0
+b:"$undefined"
+8:"$undefined"
+17:"$undefined"
+11:"$undefined"
