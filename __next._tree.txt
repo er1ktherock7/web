@@ -1,3 +1,0 @@
-:HL["/web/_next/static/css/2272a966bf170579.css","style"]
-1:[["children",{"s":"__PAGE__","h":160}]]
-0:{"b":"xGH0nCHFXtVWKpVuXz2Lh","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
